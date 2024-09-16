@@ -1,0 +1,11 @@
+body {
+  background-color: black;
+  
+}
+body::-webkit-scrollbar {
+  display: none;
+}
+#three{
+  width: 100%;
+  height: 100%;
+}
