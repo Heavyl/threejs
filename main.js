@@ -104,7 +104,7 @@ const sunSurfaceMaterial = new THREE.MeshPhysicalMaterial({
 })
 const sun = new Star( 696342, sunMaterial)
 sun.name = 'Sun'
-sun.intensity = 100
+sun.intensity = 50
 sun.build()
 
 scene.add(sun)
@@ -128,7 +128,7 @@ earth.orbitingSpeed = 30
 earth.name = 'Earth'
 earth.orbitTarget = sun
 // earth.planeTilt = ((Math.PI*2) / 360) *23
-earth.distanceFromTarget = 1 * au + sun.radius
+earth.distanceFromTarget = 1 * au 
 
 earth.build()
 
@@ -186,7 +186,6 @@ const mercuryMaterial = new THREE.MeshPhysicalMaterial({
   map : mercuryColorTexture
 })
 const mercury = new Planet(2439, sun, 0, mercuryMaterial)
-mercury.orbitingSpeed = 0
 mercury.orbitingSpeed = 47.362
 mercury.revolutionSpeed = 0.003
 mercury.name = 'Mercury'
@@ -288,25 +287,42 @@ mars.body.add(mars.atmosphere.layers)
 const jupiterMaterial = new THREE.MeshPhysicalMaterial({
   map : jupiterColorTexture
 })
-const jupiter = new Planet(60510, sun, 0, jupiterMaterial)
-jupiter.orbitingSpeed = 35.025
-jupiter.revolutionSpeed = 0.0018
+const jupiter = new Planet(71492, sun, 0, jupiterMaterial)
+jupiter.orbitingSpeed = 13.058
+jupiter.revolutionSpeed = 13.06
 jupiter.name = 'Venus'
-jupiter.planeTilt = ((Math.PI /360) *2 ) * 3.4
-jupiter.axialTilt = ((Math.PI /360) *2 ) * 177.3
+jupiter.planeTilt = ((Math.PI /360) *2 ) * 1.304
+jupiter.axialTilt = ((Math.PI /360) *2 ) * 3.12
 jupiter.orbitTarget = sun
-jupiter.distanceFromTarget =  0.723 * au
+jupiter.distanceFromTarget =  5.202 * au
 
 jupiter.build()
+
+//------------------Saturn---------------------
+
+const saturnMaterial = new THREE.MeshPhysicalMaterial({
+  map : saturnColorTexture
+})
+const saturn = new Planet(58232, sun, 0, saturnMaterial)
+saturn.orbitingSpeed = 9.6725
+saturn.revolutionSpeed = 13.06
+saturn.name = 'Saturn'
+saturn.planeTilt = ((Math.PI /360) *2 ) * 2.485
+saturn.axialTilt = ((Math.PI /360) *2 ) * 26.73
+saturn.orbitTarget = sun
+saturn.distanceFromTarget =  9.5 * au
+
+saturn.build()
 
 sun.add(mars)
 sun.add(mercury)
 sun.add(venus)
 sun.add(jupiter)
+sun.add(saturn)
 earth.add(moon)
 sun.add(earth)
 
-let cameraTarget = jupiter
+let cameraTarget = saturn
 
 /**
  * LIGHT ***************************************
@@ -393,16 +409,18 @@ function animate(){
   
 
   //Set elapsed time
-  elapsedTime = clock.getElapsedTime()
+  elapsedTime = clock.getElapsedTime() 
 
   //render
   renderer.render(scene, camera)
 
   //Rotation
-  earth.rotate()
-  mercury.rotate()
-  mars.rotate()
-  venus.rotate(true)
+  earth.rotate(elapsedTime)
+  mercury.rotate(elapsedTime)
+  mars.rotate(elapsedTime)
+  venus.rotate(elapsedTime,true)
+  jupiter.rotate(elapsedTime)
+  saturn.rotate(elapsedTime)
   
   const oldCamTargetCoordinate = new THREE.Vector3()
   cameraTarget.body.getWorldPosition(oldCamTargetCoordinate)
@@ -414,6 +432,7 @@ function animate(){
   venus.orbit(elapsedTime, sun, false)
   mars.orbit(elapsedTime, sun, false)
   jupiter.orbit(elapsedTime, sun, false)
+  saturn.orbit(elapsedTime, sun, false)
 
 
   const delta = cameraTarget.coordinate.clone().sub(oldCamTargetCoordinate)
@@ -422,17 +441,18 @@ function animate(){
   window.requestAnimationFrame(animate)
   camera.position.add(delta)
 
-  const cameraDistance = cameraTarget.position.distanceTo(camera.position)
-  if( cameraDistance > 10000 ){
-    cameraTarget = sun
-    if( x <= 1){
+  // //Camera logic
+  // const cameraDistance = cameraTarget.position.distanceTo(camera.position)
+  // if( cameraDistance > 10000 ){
+  //   cameraTarget = sun
+  //   if( x <= 1){
       
-      orbitControls.target = orbitControls.target.clone().add(cameraTarget.coordinate.clone().sub(orbitControls.target).multiplyScalar(x)) 
-      x = x + 0.0001
-    }
+  //     orbitControls.target = orbitControls.target.clone().add(cameraTarget.coordinate.clone().sub(orbitControls.target).multiplyScalar(x)) 
+  //     x = x + 0.0001
+  //   }
     
-    console.log(cameraDistance)
-  }
+  //   console.log(cameraDistance)
+  // }
   
   update()
 

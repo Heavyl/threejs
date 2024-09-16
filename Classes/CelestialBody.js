@@ -50,6 +50,7 @@ export default class CelestialBody extends THREE.Group{
       //Set Computed values, to limit scaling abération
       this.computedRadius = this.radius * scale
       this.computedSpeed = scale * this.orbitingSpeed * globalSpeed
+      this.computedRevSpeed = scale * this.revolutionSpeed * globalSpeed
       if(this.orbitTarget){
         
         //Set orbit Target
@@ -57,7 +58,7 @@ export default class CelestialBody extends THREE.Group{
         this.orbitTargetBody = this.orbitTarget.body
 
         //Compute distance from target
-        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) /10) * scale  //Reduce distance from target by a 1000 factor 
+        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) / 10) * scale  //Reduce distance from target by a 1000 factor 
         
         //Set orbit path
         this.orbitPath = this.createOrbitPath( 0xffffff )
@@ -98,12 +99,12 @@ export default class CelestialBody extends THREE.Group{
      * Manage body rotation on itself
      * @param {Boolean} clockwise Revolution direction. True if clockwise, false if counterclockwise
      */
-    rotate(clockwise = false){
+    rotate(time, clockwise = false){
       let revoltionDirection = 1
       if(clockwise){
         revoltionDirection = -1
       }
-      this.body.rotateY( (revoltionDirection * this.revolutionSpeed * scale) * globalSpeed  )
+      this.body.rotation.y = time * this.computedRevSpeed 
     }
     /**
      * Manage the orbit animation, update position of body
