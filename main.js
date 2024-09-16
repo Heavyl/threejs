@@ -3,13 +3,13 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import {EffectComposer}  from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 import { au } from './globalParameters'
 
 import Planet from './Classes/Planet'
 import Star from './Classes/Star'
-import Satelite from './Classes/Satelite'
-
+import Ring from './Classes/Ring'
 
 
 
@@ -81,7 +81,10 @@ const venusClouds = textureLoader.load('/textures/venus/venusClouds.jpg')
 const jupiterColorTexture = textureLoader.load('/textures/jupiter/jupiterColor.jpg')
 const uranusColorTexture = textureLoader.load('/textures/uranus/uranusColor.jpg')
 const neptuneColorTexture = textureLoader.load('/textures/neptune/neptuneColor.jpg')
+
 const saturnColorTexture = textureLoader.load('/textures/saturn/saturnColor.jpg')
+const saturnRingsTexture = textureLoader.load('/textures/saturn/saturnRings.png')
+saturnRingsTexture.wrapS = saturnRingsTexture.wrapT = THREE.RepeatWrapping
 
 
 const sunColorTexture = textureLoader.load('/textures/sun/sunColor.jpg')
@@ -301,7 +304,8 @@ jupiter.build()
 //------------------Saturn---------------------
 
 const saturnMaterial = new THREE.MeshPhysicalMaterial({
-  map : saturnColorTexture
+  map : saturnColorTexture,
+  roughness : 1
 })
 const saturn = new Planet(58232, sun, 0, saturnMaterial)
 saturn.orbitingSpeed = 9.6725
@@ -312,17 +316,65 @@ saturn.axialTilt = ((Math.PI /360) *2 ) * 26.73
 saturn.orbitTarget = sun
 saturn.distanceFromTarget =  9.5 * au
 
+
+console.log(saturn.radius)
+
 saturn.build()
+const saturnRingsMaterial = new THREE.MeshPhysicalMaterial({
+  map : saturnRingsTexture,
+  // alphaMap : saturnRingsTexture,
+  side: THREE.DoubleSide,
+  transparent : true,
+  opacity : 1,
+  roughness : 0.5
+})
+saturn.body.add( new Ring(saturn, 135000, saturn.radius+ 10000, saturnRingsMaterial))
+
+//------------------Uranus---------------------
+
+const uranusMaterial = new THREE.MeshPhysicalMaterial({
+  map : uranusColorTexture,
+  roughness : 0.8
+})
+const uranus = new Planet(25362, sun, 0, uranusMaterial)
+uranus.orbitingSpeed = 6.835
+uranus.revolutionSpeed = 2.59
+uranus.name = 'Uranus'
+uranus.planeTilt = ((Math.PI /360) *2 ) * 0.773
+uranus.axialTilt = ((Math.PI /360) *2 ) * 97.8
+uranus.orbitTarget = sun
+uranus.distanceFromTarget =  19.189 * au
+
+uranus.build()
+
+//------------------Neptune---------------------
+
+const neptuneMaterial = new THREE.MeshPhysicalMaterial({
+  map : neptuneColorTexture,
+  
+})
+const neptune = new Planet(24622, sun, 0, neptuneMaterial)
+neptune.orbitingSpeed = 5.43
+neptune.revolutionSpeed = 2.68
+neptune.name = 'Neptune'
+neptune.planeTilt = ((Math.PI /360) *2 ) * 1.304
+neptune.axialTilt = ((Math.PI /360) *2 ) * 28.32
+neptune.orbitTarget = sun
+neptune.distanceFromTarget =  30.069 * au
+
+neptune.build()
 
 sun.add(mars)
 sun.add(mercury)
 sun.add(venus)
 sun.add(jupiter)
 sun.add(saturn)
+sun.add(uranus)
+sun.add(neptune)
 earth.add(moon)
 sun.add(earth)
 
-let cameraTarget = saturn
+let cameraTarget = earth
 
 /**
  * LIGHT ***************************************
@@ -340,8 +392,16 @@ const canvas = document.querySelector('#three')
 const renderer = new THREE.WebGLRenderer({
   canvas :canvas, 
   antialias : true
+  
 })
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
+const labelRenderer = new CSS2DRenderer()
+labelRenderer.setSize( window.innerWidth, window.innerHeight )
+labelRenderer.domElement.style.position = 'absolute'
+labelRenderer.domElement.style.top = '0px'
+document.body.appendChild( labelRenderer.domElement )
 
 /**
  * POST PROCESSING
@@ -351,7 +411,7 @@ const renderer = new THREE.WebGLRenderer({
 /**
  * ORBIT CONTROLS ***************************************
  */
-const orbitControls = new OrbitControls(camera,canvas)
+const orbitControls = new OrbitControls(camera,labelRenderer.domElement)
 orbitControls.enableDamping = true
 orbitControls.dampingFactor = 0.02
 orbitControls.target = cameraTarget.coordinate
@@ -385,10 +445,10 @@ window.addEventListener('mousemove',(event)=>{
  */
 
 //Set canvas size on loading page
-window.addEventListener('load', setCanvasSize(camera, renderer))
+window.addEventListener('load', setCanvasSize())
 //Resize canvas for responsivness
 window.addEventListener("resize", (e)=>{
-  setCanvasSize(camera,renderer)
+  setCanvasSize()
 })
 
 
@@ -397,6 +457,21 @@ window.addEventListener("resize", (e)=>{
  * GUI ***************************************
  */
 const gui = new GUI()
+
+/**
+ * LABELS
+ */
+
+const earthDiv = document.createElement( 'div' )
+earthDiv.className = 'label'
+earthDiv.textContent = 'Earth'
+earthDiv.style.backgroundColor = 'transparent'
+
+const earthLabel = new CSS2DObject( earthDiv )
+earthLabel.position.set( 1.5 * earth.computedRadius, 0, 0 )
+earthLabel.center.set( 0, 0 )
+earth.body.add( earthLabel )
+earthLabel.layers.set( 0 )
 
 
 
@@ -413,19 +488,22 @@ function animate(){
 
   //render
   renderer.render(scene, camera)
+  labelRenderer.render( scene, camera )
 
-  //Rotation
+  //Rotations
   earth.rotate(elapsedTime)
   mercury.rotate(elapsedTime)
   mars.rotate(elapsedTime)
   venus.rotate(elapsedTime,true)
   jupiter.rotate(elapsedTime)
   saturn.rotate(elapsedTime)
+  saturn.rotate(elapsedTime)
+  neptune.rotate(elapsedTime)
   
   const oldCamTargetCoordinate = new THREE.Vector3()
   cameraTarget.body.getWorldPosition(oldCamTargetCoordinate)
 
-  //Orbit
+  //Orbits
   earth.orbit(elapsedTime, sun, false)  
   moon.orbit(elapsedTime, earth)
   mercury.orbit(elapsedTime, sun, false)
@@ -433,6 +511,8 @@ function animate(){
   mars.orbit(elapsedTime, sun, false)
   jupiter.orbit(elapsedTime, sun, false)
   saturn.orbit(elapsedTime, sun, false)
+  uranus.orbit(elapsedTime, sun, false)
+  neptune.orbit(elapsedTime, sun, false)
 
 
   const delta = cameraTarget.coordinate.clone().sub(oldCamTargetCoordinate)
@@ -456,7 +536,7 @@ function animate(){
   
   update()
 
-  console.log(Math.round(elapsedTime))
+  // console.log(Math.round(elapsedTime))
 }
 
 animate()
@@ -478,7 +558,7 @@ function update(){
  * @param {THREE.Camera} camera 
  * @param {THREE.WebGLRenderer} renderer 
  */
-function setCanvasSize(camera,renderer){
+function setCanvasSize(){
   //Set aspect
   aspect.width = window.innerWidth
   aspect.height = window.innerHeight
@@ -489,6 +569,7 @@ function setCanvasSize(camera,renderer){
 
   //Set rendererSize
   renderer.setSize(aspect.width, aspect.height)
+  labelRenderer.setSize( aspect.width, aspect.height )
 }
 
 

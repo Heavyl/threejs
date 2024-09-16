@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import CelestialBody from './CelestialBody'
 import degreeToRadian from '/functions/Utility/degreeToRadian'
 import Atmosphere from './Atmosphere'
-import { scale } from '../globalParameters'
 
 
 /**

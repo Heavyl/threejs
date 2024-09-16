@@ -15,7 +15,7 @@ export default class Star extends CelestialBody{
         
         //Light Parameters
         this.lightRange = 0
-        this.lightDecay = 0.5
+        this.lightDecay = 0.4
         this.color = new THREE.Color
         this.intensity = 100
         
@@ -24,6 +24,14 @@ export default class Star extends CelestialBody{
         super.build()
         this.light = new THREE.PointLight(this.color, this.intensity, this.lightRange, this.lightDecay)
         this.light.name = 'light'
+        this.light.castShadow = true
+
+        this.light.shadow.mapSize.width = 1024; // default
+        this.light.shadow.mapSize.height = 1024; // default
+        this.light.shadow.camera.near = 10; // default
+        this.light.shadow.camera.far = 1000; // default
+        
+        this.add( new THREE.CameraHelper( this.light.shadow.camera ) )
         this.body.add(this.light)
 
     }

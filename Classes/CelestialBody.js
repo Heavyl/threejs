@@ -78,6 +78,7 @@ export default class CelestialBody extends THREE.Group{
         this.material) 
       mesh.name = 'Surface'
       mesh.receiveShadow = true
+      mesh.castShadow = true
       
 
       //Body of celestial Object
@@ -85,9 +86,7 @@ export default class CelestialBody extends THREE.Group{
       this.body.name = 'Body' 
       if(this.computedDistance){
         this.pivotPoint.position.z = this.computedDistance
-      console.log(this.computedDistance)
       }
-      
       
       //add object to pivot, add pivot to parent
       this.pivotPoint.attach(this.body)
