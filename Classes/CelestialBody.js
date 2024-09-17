@@ -17,6 +17,7 @@ export default class CelestialBody extends THREE.Group{
       this.name = 'Celestial Body'
       //Graphic parameters :
       this.resolution = globalMeshResolution
+      this.orbitPathColor
   
       //Basic init values
       this.radius = radius // in km
@@ -45,7 +46,6 @@ export default class CelestialBody extends THREE.Group{
       this.pivotPoint = new THREE.Group()
       this.pivotPoint.name ='Pivot Point'
       
-
       
       //Set Computed values, to limit scaling abération
       this.computedRadius = this.radius * scale
@@ -58,10 +58,10 @@ export default class CelestialBody extends THREE.Group{
         this.orbitTargetBody = this.orbitTarget.body
 
         //Compute distance from target
-        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) / 10) * scale  //Reduce distance from target by a 1000 factor 
+        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) / 50) * scale  //Reduce distance from target by a 1000 factor 
         
         //Set orbit path
-        this.orbitPath = this.createOrbitPath( 0xffffff )
+        this.orbitPath = this.createOrbitPath( this.orbitPathColor ? this.orbitPathColor : 0xffffff )
         this.pivotPoint.attach(this.orbitPath)
         this.pivotPoint.rotateZ(this.planeTilt)
         

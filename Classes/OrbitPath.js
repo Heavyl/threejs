@@ -24,22 +24,21 @@ export default class OrbitPath{
             false,            // aClockwise
         )
     
-        // console.log(this.target.orbitTarget)
+        
         const points = curve.getPoints( this.target.computedRadius * this.resolution * 10 )
         const geometry = new THREE.BufferGeometry().setFromPoints( points )
       
         const material = new THREE.LineBasicMaterial({ 
+            linewidth : 100,
             transparent : true,
             opacity : 0.2,
             color: this.color 
         })
-        const ellipse = new THREE.Line( geometry, material )
+        const ellipse = new THREE.Line( geometry, material)
+        ellipse.computeLineDistances()
         ellipse.rotateX(Math.PI/2)
-        if(this.angle > 0){
-            
-        }
-        
         ellipse.name = this.target.name + "'s Orbit"
+
         return ellipse
     }
 

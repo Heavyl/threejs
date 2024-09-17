@@ -86,8 +86,25 @@ const saturnColorTexture = textureLoader.load('/textures/saturn/saturnColor.jpg'
 const saturnRingsTexture = textureLoader.load('/textures/saturn/saturnRings.png')
 saturnRingsTexture.wrapS = saturnRingsTexture.wrapT = THREE.RepeatWrapping
 
-
 const sunColorTexture = textureLoader.load('/textures/sun/sunColor.jpg')
+
+
+/**
+ * SKYBOX
+ */
+
+//Cube loader
+const cubeLoader = new THREE.CubeTextureLoader()
+const skyTexture = cubeLoader.load([
+  '/textures/sky/px.png',
+  '/textures/sky/px.png',
+  '/textures/sky/py.png',
+  '/textures/sky/ny.png',
+  '/textures/sky/pz.png',
+  '/textures/sky/nz.png'
+])
+console.log(skyTexture)
+scene.background = skyTexture
 /*
  * CELESTIAL BODY IMPLEMENTATION 
  */
@@ -117,12 +134,12 @@ scene.add(sun)
 const earthSystem = new THREE.Group()
 earthSystem.name = 'Earth System'
 
-const earthMaterial = new THREE.MeshPhysicalMaterial({
+const earthMaterial = new THREE.MeshStandardMaterial({
   map : earthColorTexture,
   aoMap : earthSpecularTexture,
-  roughness :  0.8,
+  roughness :  1,
   bumpMap : earthNormalTexture,
-  bumpScale : -2
+  bumpScale : -3
 })
 
 const earth = new Planet(6371, null, 23.5, earthMaterial)
@@ -130,8 +147,8 @@ earth.revolutionSpeed = 0.4651
 earth.orbitingSpeed = 30
 earth.name = 'Earth'
 earth.orbitTarget = sun
-// earth.planeTilt = ((Math.PI*2) / 360) *23
 earth.distanceFromTarget = 1 * au 
+earth.orbitPathColor = 0xff0000
 
 earth.build()
 
@@ -303,7 +320,7 @@ jupiter.build()
 
 //------------------Saturn---------------------
 
-const saturnMaterial = new THREE.MeshPhysicalMaterial({
+const saturnMaterial = new THREE.MeshStandardMaterial({
   map : saturnColorTexture,
   roughness : 1
 })
@@ -320,7 +337,7 @@ saturn.distanceFromTarget =  9.5 * au
 console.log(saturn.radius)
 
 saturn.build()
-const saturnRingsMaterial = new THREE.MeshPhysicalMaterial({
+const saturnRingsMaterial = new THREE.MeshStandardMaterial({
   map : saturnRingsTexture,
   // alphaMap : saturnRingsTexture,
   side: THREE.DoubleSide,
