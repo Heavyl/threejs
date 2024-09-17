@@ -1,8 +1,7 @@
 import * as THREE from 'three'
-import { globalMeshResolution } from '../globalParameters'
-import { scale } from '../globalParameters'
-import { globalSpeed } from '../globalParameters'
+import { globalSpeed, scale, distanceFactor, globalMeshResolution } from '../globalParameters'
 import OrbitPath from './OrbitPath'
+import Label from './Label'
   
 /**
  * CELESTIAL BODY
@@ -49,8 +48,9 @@ export default class CelestialBody extends THREE.Group{
       
       //Set Computed values, to limit scaling abération
       this.computedRadius = this.radius * scale
-      this.computedSpeed = scale * this.orbitingSpeed * globalSpeed
-      this.computedRevSpeed = scale * this.revolutionSpeed * globalSpeed
+      this.computedSpeed = (scale * this.orbitingSpeed * globalSpeed ) / distanceFactor 
+      this.computedRevSpeed = scale * this.revolutionSpeed * globalSpeed 
+      
       if(this.orbitTarget){
         
         //Set orbit Target
@@ -58,7 +58,7 @@ export default class CelestialBody extends THREE.Group{
         this.orbitTargetBody = this.orbitTarget.body
 
         //Compute distance from target
-        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) / 50) * scale  //Reduce distance from target by a 1000 factor 
+        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) / distanceFactor) * scale  
         
         //Set orbit path
         this.orbitPath = this.createOrbitPath( this.orbitPathColor ? this.orbitPathColor : 0xffffff )
@@ -70,7 +70,7 @@ export default class CelestialBody extends THREE.Group{
       //Axes Helper
       const axeHelper = new THREE.AxesHelper(this.computedRadius + 10 * this.computedRadius)
       axeHelper.name = 'Axes'
-      this.body.add(axeHelper)
+      this.add(axeHelper)
 
       //Build Surface geometry
       const mesh = new THREE.Mesh(
@@ -80,8 +80,7 @@ export default class CelestialBody extends THREE.Group{
       mesh.receiveShadow = true
       mesh.castShadow = true
       
-
-      //Body of celestial Object
+      //Body group of celestial Object
       this.body.add(mesh)
       this.body.name = 'Body' 
       if(this.computedDistance){
@@ -92,18 +91,26 @@ export default class CelestialBody extends THREE.Group{
       this.pivotPoint.attach(this.body)
       this.attach(this.pivotPoint)
       this.body.rotateZ(this.axialTilt)
-    
+      
+      //Labels
+      const label = new Label(this)
+      const labels = new THREE.Group()
+      labels.name = 'labels'
+      labels.add(label)
+      this.body.add(labels)
     }
     /**
-     * Manage body rotation on itself
+     * Manage body rotation on itself. Update position of body.
      * @param {Boolean} clockwise Revolution direction. True if clockwise, false if counterclockwise
      */
     rotate(time, clockwise = false){
-      let revoltionDirection = 1
+      let revolutionDirection = 1
       if(clockwise){
-        revoltionDirection = -1
+        revolutionDirection = -1
       }
-      this.body.rotation.y = time * this.computedRevSpeed 
+      // this.body.rotateY(this.computedRevSpeed * revolutionDirection)
+      // this.body.rotation.y = this.computedRevSpeed * time * revolutionDirection
+      this.body.rotateY((this.computedRevSpeed  * revolutionDirection)/10)
     }
     /**
      * Manage the orbit animation, update position of body
@@ -123,22 +130,13 @@ export default class CelestialBody extends THREE.Group{
       if(clockwise === false){
         orbitDirection = -1
       }
-      //Orbit mathematics
-      this.pivotPoint.rotateY(this.computedSpeed * scale * globalSpeed ) 
-      
+      //Orbit mathematics      
 
-      // this.body.position.x  = (this.pivotPoint.position.x + Math.cos(this.computedSpeed* time) * (this.computedDistance * orbitDirection))
-      // this.body.position.z  = (this.pivotPoint.position.z + Math.sin(this.computedSpeed * time) * this.computedDistance)
-      
+      this.body.position.x  = targetPosition.x +( Math.cos(this.computedSpeed* time) * (this.computedDistance * orbitDirection))
+      this.body.position.z  = targetPosition.z +( Math.sin(this.computedSpeed * time) * this.computedDistance)
+      this.body.position.sub(this.orbitTarget.body.position) // correct position for child bodies
       this.body.getWorldPosition(this.coordinate)
       
-      
-      
-      if(this.name == 'Moon'){
-        // console.log(this.position) 
-        // console.log(targetPosition) 
-        
-      }
     }
     /**
      * 

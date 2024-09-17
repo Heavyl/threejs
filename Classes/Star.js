@@ -26,13 +26,13 @@ export default class Star extends CelestialBody{
         this.light.name = 'light'
         this.light.castShadow = true
 
-        this.light.shadow.mapSize.width = 1024; // default
-        this.light.shadow.mapSize.height = 1024; // default
-        this.light.shadow.camera.near = 10; // default
-        this.light.shadow.camera.far = 1000; // default
+        this.light.shadow.mapSize.width = 1024
+        this.light.shadow.mapSize.height = 1024
+        this.light.shadow.camera.near = 10
+        this.light.shadow.camera.far = 1000
         
-        this.add( new THREE.CameraHelper( this.light.shadow.camera ) )
+        // this.add( new THREE.CameraHelper( this.light.shadow.camera ) )
         this.body.add(this.light)
-
+        
     }
 }

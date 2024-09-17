@@ -5,11 +5,12 @@ import { GUI } from 'dat.gui'
 import {EffectComposer}  from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
-import { au } from './globalParameters'
+import { au, timeOffset } from './globalParameters'
 
 import Planet from './Classes/Planet'
 import Star from './Classes/Star'
 import Ring from './Classes/Ring'
+import CelestialBody from './Classes/CelestialBody';
 
 
 
@@ -143,8 +144,8 @@ const earthMaterial = new THREE.MeshStandardMaterial({
 })
 
 const earth = new Planet(6371, null, 23.5, earthMaterial)
-earth.revolutionSpeed = 0.4651 
-earth.orbitingSpeed = 30
+earth.revolutionSpeed = 0.465
+earth.orbitingSpeed = 29.72
 earth.name = 'Earth'
 earth.orbitTarget = sun
 earth.distanceFromTarget = 1 * au 
@@ -326,7 +327,7 @@ const saturnMaterial = new THREE.MeshStandardMaterial({
 })
 const saturn = new Planet(58232, sun, 0, saturnMaterial)
 saturn.orbitingSpeed = 9.6725
-saturn.revolutionSpeed = 13.06
+saturn.revolutionSpeed = 9.68
 saturn.name = 'Saturn'
 saturn.planeTilt = ((Math.PI /360) *2 ) * 2.485
 saturn.axialTilt = ((Math.PI /360) *2 ) * 26.73
@@ -344,7 +345,10 @@ const saturnRingsMaterial = new THREE.MeshStandardMaterial({
   transparent : true,
   opacity : 1,
   roughness : 0.5
+  
 })
+saturn.receiveShadow = true
+saturn.castShadow = true
 saturn.body.add( new Ring(saturn, 135000, saturn.radius+ 10000, saturnRingsMaterial))
 
 //------------------Uranus---------------------
@@ -401,7 +405,6 @@ const ambientLigth = new THREE.AmbientLight(0xffffff, 0.005)
 scene.add(ambientLigth)
 
 
-
 /**
  * RENDERER ***************************************
  */
@@ -412,7 +415,7 @@ const renderer = new THREE.WebGLRenderer({
   
 })
 renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 const labelRenderer = new CSS2DRenderer()
 labelRenderer.setSize( window.innerWidth, window.innerHeight )
@@ -479,16 +482,7 @@ const gui = new GUI()
  * LABELS
  */
 
-const earthDiv = document.createElement( 'div' )
-earthDiv.className = 'label'
-earthDiv.textContent = 'Earth'
-earthDiv.style.backgroundColor = 'transparent'
 
-const earthLabel = new CSS2DObject( earthDiv )
-earthLabel.position.set( 1.5 * earth.computedRadius, 0, 0 )
-earthLabel.center.set( 0, 0 )
-earth.body.add( earthLabel )
-earthLabel.layers.set( 0 )
 
 
 
@@ -499,37 +493,38 @@ let x = 0.001
 
 function animate(){
   
-
   //Set elapsed time
   elapsedTime = clock.getElapsedTime() 
-
+  let time = elapsedTime + timeOffset
+  
   //render
   renderer.render(scene, camera)
   labelRenderer.render( scene, camera )
 
   //Rotations
-  earth.rotate(elapsedTime)
-  mercury.rotate(elapsedTime)
-  mars.rotate(elapsedTime)
-  venus.rotate(elapsedTime,true)
-  jupiter.rotate(elapsedTime)
-  saturn.rotate(elapsedTime)
-  saturn.rotate(elapsedTime)
-  neptune.rotate(elapsedTime)
+  earth.rotate(time)
+  mercury.rotate(time)
+  mars.rotate(time)
+  venus.rotate(time,true)
+  jupiter.rotate(time)
+  saturn.rotate(time)
+  saturn.rotate(time)
+  neptune.rotate(time)
+  
   
   const oldCamTargetCoordinate = new THREE.Vector3()
   cameraTarget.body.getWorldPosition(oldCamTargetCoordinate)
 
   //Orbits
-  earth.orbit(elapsedTime, sun, false)  
-  moon.orbit(elapsedTime, earth)
-  mercury.orbit(elapsedTime, sun, false)
-  venus.orbit(elapsedTime, sun, false)
-  mars.orbit(elapsedTime, sun, false)
-  jupiter.orbit(elapsedTime, sun, false)
-  saturn.orbit(elapsedTime, sun, false)
-  uranus.orbit(elapsedTime, sun, false)
-  neptune.orbit(elapsedTime, sun, false)
+  earth.orbit(time, sun, false)  
+  moon.orbit(time, earth)
+  mercury.orbit(time, sun, false)
+  venus.orbit(time, sun, false)
+  mars.orbit(time, sun, false)
+  jupiter.orbit(time, sun, false)
+  saturn.orbit(time, sun, false)
+  uranus.orbit(time, sun, false)
+  neptune.orbit(time, sun, false)
 
 
   const delta = cameraTarget.coordinate.clone().sub(oldCamTargetCoordinate)

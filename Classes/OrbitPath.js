@@ -29,13 +29,11 @@ export default class OrbitPath{
         const geometry = new THREE.BufferGeometry().setFromPoints( points )
       
         const material = new THREE.LineBasicMaterial({ 
-            linewidth : 100,
             transparent : true,
             opacity : 0.2,
             color: this.color 
         })
-        const ellipse = new THREE.Line( geometry, material)
-        ellipse.computeLineDistances()
+        const ellipse = new THREE.Line( geometry, material)        
         ellipse.rotateX(Math.PI/2)
         ellipse.name = this.target.name + "'s Orbit"
 

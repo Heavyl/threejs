@@ -25,5 +25,6 @@ export default class Planet extends CelestialBody{
       this.lowAtmosphere = new Atmosphere(this.radius, this.radius /100)
       
       this.name = 'planet'
+      this.satelites = new THREE.Group()
     } 
   }
