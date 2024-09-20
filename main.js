@@ -3,15 +3,15 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import {EffectComposer}  from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
+import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 import { au, timeOffset } from './globalParameters'
 
 import Planet from './Classes/Planet'
 import Star from './Classes/Star'
 import Ring from './Classes/Ring'
-import CelestialBody from './Classes/CelestialBody';
-
+import Satelite from './Classes/Satelite';
+import Camera from './Classes/Camera';
 
 
 
@@ -30,12 +30,14 @@ const aspect = {
   height : window.innerHeight
 }
 const fov = 75
+const near = 0.01
+const far = 100000
 
-const camera = new THREE.PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 100000)
+const camera = new Camera(fov, aspect.width / aspect.height, near, far)
 scene.add(camera)
 
-camera.position.z = 20
-camera.position.y = 20
+camera.position.z = 5
+camera.position.y = 5
 
 /**
  * STATS ***************************************
@@ -104,7 +106,7 @@ const skyTexture = cubeLoader.load([
   '/textures/sky/pz.png',
   '/textures/sky/nz.png'
 ])
-console.log(skyTexture)
+
 scene.background = skyTexture
 /*
  * CELESTIAL BODY IMPLEMENTATION 
@@ -152,7 +154,6 @@ earth.distanceFromTarget = 1 * au
 earth.orbitPathColor = 0xff0000
 
 earth.build()
-
 
 //Earth Atmosphere
 const atmosphereMaterial = new THREE.MeshStandardMaterial({
@@ -303,6 +304,31 @@ const marsAtmosphereMaterials = [marsAtmosphereMaterial, marsAtmosphereMaterial2
 mars.atmosphere.addLayer(2, marsAtmosphereMaterials)
 mars.body.add(mars.atmosphere.layers)
 
+//Deimos
+const deimosMaterial = new THREE.MeshPhysicalMaterial(0xffffff)
+const deimos = new Planet(15, mars, 0, deimosMaterial)
+deimos.orbitingSpeed = 1.35
+deimos.revolutionSpeed = 0.24
+deimos.orbitTarget = mars
+deimos.name = 'Deimos'
+deimos.planeTilt = ((Math.PI /360) *2 ) * 27.58
+deimos.distanceFromTarget =  0.00015 * au
+
+deimos.build()
+
+//Phobos
+const phobosMaterial = new THREE.MeshPhysicalMaterial(0xffffff)
+const phobos = new Planet(25.90, mars, 0, phobosMaterial)
+phobos.orbitingSpeed = 2.138
+phobos.revolutionSpeed = 0.24
+phobos.orbitTarget = mars
+phobos.name = 'Phobos'
+phobos.planeTilt = ((Math.PI /360) *2 ) * 26.04
+phobos.distanceFromTarget =  0.0000626 * au
+
+phobos.build()
+
+
 //------------------Jupiter---------------------
 
 const jupiterMaterial = new THREE.MeshPhysicalMaterial({
@@ -311,7 +337,7 @@ const jupiterMaterial = new THREE.MeshPhysicalMaterial({
 const jupiter = new Planet(71492, sun, 0, jupiterMaterial)
 jupiter.orbitingSpeed = 13.058
 jupiter.revolutionSpeed = 13.06
-jupiter.name = 'Venus'
+jupiter.name = 'Jupiter'
 jupiter.planeTilt = ((Math.PI /360) *2 ) * 1.304
 jupiter.axialTilt = ((Math.PI /360) *2 ) * 3.12
 jupiter.orbitTarget = sun
@@ -333,11 +359,8 @@ saturn.planeTilt = ((Math.PI /360) *2 ) * 2.485
 saturn.axialTilt = ((Math.PI /360) *2 ) * 26.73
 saturn.orbitTarget = sun
 saturn.distanceFromTarget =  9.5 * au
-
-
-console.log(saturn.radius)
-
 saturn.build()
+
 const saturnRingsMaterial = new THREE.MeshStandardMaterial({
   map : saturnRingsTexture,
   // alphaMap : saturnRingsTexture,
@@ -382,9 +405,26 @@ neptune.planeTilt = ((Math.PI /360) *2 ) * 1.304
 neptune.axialTilt = ((Math.PI /360) *2 ) * 28.32
 neptune.orbitTarget = sun
 neptune.distanceFromTarget =  30.069 * au
-
 neptune.build()
 
+//testing planet
+const testMaterial = new THREE.MeshPhysicalMaterial({
+  map : marsColorTexture
+})
+const test = new Planet(2000, sun, 0, testMaterial)
+test.orbitingSpeed = 24.13
+test.revolutionSpeed = 0.24
+test.name = 'Test'
+test.planeTilt = ((Math.PI /360) *2 ) * 1.85
+test.axialTilt = ((Math.PI /360) *2 ) * 25.2
+test.orbitTarget = mars
+test.distanceFromTarget =  0.0001 * au
+test.build()
+
+// jupiter.add(test)
+
+mars.add(deimos)
+mars.add(phobos)
 sun.add(mars)
 sun.add(mercury)
 sun.add(venus)
@@ -395,7 +435,8 @@ sun.add(neptune)
 earth.add(moon)
 sun.add(earth)
 
-let cameraTarget = earth
+// export let cameraTarget = earth
+camera.setTarget(earth)
 
 /**
  * LIGHT ***************************************
@@ -424,8 +465,27 @@ labelRenderer.domElement.style.top = '0px'
 document.body.appendChild( labelRenderer.domElement )
 
 /**
- * POST PROCESSING
+ * RAYCASTER
  */
+const raycaster = new THREE.Raycaster()
+const pointer = new THREE.Vector2()
+
+/**
+ * MOUSE LISTENER ***************************************
+ */
+
+
+window.addEventListener('mousemove',(event)=>{
+  pointer.x = (event.clientX/aspect.width) * 2-1
+  pointer.y = -(event.clientY/aspect.height) * 2 + 1
+
+  //raycasting
+  // raycaster.setFromCamera(pointer, camera)
+  // const intersects = raycaster.intersectObject(earth)
+  // console.log(intersects[0])
+  
+})
+
 
 
 /**
@@ -434,10 +494,9 @@ document.body.appendChild( labelRenderer.domElement )
 const orbitControls = new OrbitControls(camera,labelRenderer.domElement)
 orbitControls.enableDamping = true
 orbitControls.dampingFactor = 0.02
-orbitControls.target = cameraTarget.coordinate
-// orbitControls.autoRotate = true
-orbitControls.enablePan = false
+orbitControls.target = camera.target.coordinate
 
+orbitControls.enablePan = false
 
 
 /**
@@ -446,30 +505,38 @@ orbitControls.enablePan = false
 const clock = new THREE.Clock()
 let elapsedTime = null
 
-/**
- * MOUSE LISTENER ***************************************
- */
-let cursor = {
-  x : 0,
-  y : 0
-}
 
-window.addEventListener('mousemove',(event)=>{
-  cursor.x = event.clientX/aspect.width - 0.5
-  cursor.y = event.clientY/aspect.height -0.5
+
+
+
+window.addEventListener('load', ()=>{
+  //Set canvas size on loading page
+  setCanvasSize()
+
+  //Event for click on labels
+  const labels = document.querySelectorAll('.label')  
   
-})
-
-/**
- * CANVAS SIZE ***************************************
- */
-
-//Set canvas size on loading page
-window.addEventListener('load', setCanvasSize())
+  labels.forEach((label)=>{
+      label.addEventListener('pointerdown', (e)=>{
+        const newTarget = scene.getObjectByName(e.target.dataset.name)
+        camera.oldTarget = camera.target //Keep track of old target
+        camera.target = newTarget // set new target to be the selected one
+        
+        //Switch in transition mode id target is different from before
+        if(camera.oldTarget != camera.target){
+          camera.inTransition = true
+        }
+        
+      })
+  })
+}
+  
+)
 //Resize canvas for responsivness
 window.addEventListener("resize", (e)=>{
   setCanvasSize()
 })
+
 
 
 
@@ -478,21 +545,16 @@ window.addEventListener("resize", (e)=>{
  */
 const gui = new GUI()
 
-/**
- * LABELS
- */
-
-
-
-
 
 /**
  * ANIMATION ***************************************
  */
 let x = 0.001
 
+
+
 function animate(){
-  
+  window.requestAnimationFrame(animate)
   //Set elapsed time
   elapsedTime = clock.getElapsedTime() 
   let time = elapsedTime + timeOffset
@@ -505,50 +567,43 @@ function animate(){
   earth.rotate(time)
   mercury.rotate(time)
   mars.rotate(time)
+  
   venus.rotate(time,true)
   jupiter.rotate(time)
   saturn.rotate(time)
   saturn.rotate(time)
   neptune.rotate(time)
   
-  
-  const oldCamTargetCoordinate = new THREE.Vector3()
-  cameraTarget.body.getWorldPosition(oldCamTargetCoordinate)
+  //Get camera target coordinate before every other animation
+  camera.getOldTargetCoord()
 
   //Orbits
-  earth.orbit(time, sun, false)  
-  moon.orbit(time, earth)
-  mercury.orbit(time, sun, false)
-  venus.orbit(time, sun, false)
-  mars.orbit(time, sun, false)
-  jupiter.orbit(time, sun, false)
-  saturn.orbit(time, sun, false)
-  uranus.orbit(time, sun, false)
-  neptune.orbit(time, sun, false)
+  earth.orbit(time, false)  
+  moon.orbit(time)
+  mercury.orbit(time, false)
+  venus.orbit(time, false)
+  mars.orbit(time, false)
+  deimos.orbit(time, false)
+  phobos.orbit(time, false)
+  jupiter.orbit(time, false)
+  saturn.orbit(time, false)
+  uranus.orbit(time,false)
+  neptune.orbit(time,false)
+  test.orbit(time, false)
 
 
-  const delta = cameraTarget.coordinate.clone().sub(oldCamTargetCoordinate)
-
+  camera.position.add(camera.getDelta())
   
-  window.requestAnimationFrame(animate)
-  camera.position.add(delta)
 
-  // //Camera logic
-  // const cameraDistance = cameraTarget.position.distanceTo(camera.position)
-  // if( cameraDistance > 10000 ){
-  //   cameraTarget = sun
-  //   if( x <= 1){
-      
-  //     orbitControls.target = orbitControls.target.clone().add(cameraTarget.coordinate.clone().sub(orbitControls.target).multiplyScalar(x)) 
-  //     x = x + 0.0001
-  //   }
-    
-  //   console.log(cameraDistance)
-  // }
-  
+  if(camera.inTransition){
+    camera.transition(orbitControls)
+  }else{
+    orbitControls.target = camera.target.coordinate
+  }
+
+  // console.log(camera.inTransition)
   update()
 
-  // console.log(Math.round(elapsedTime))
 }
 
 animate()
@@ -583,5 +638,4 @@ function setCanvasSize(){
   renderer.setSize(aspect.width, aspect.height)
   labelRenderer.setSize( aspect.width, aspect.height )
 }
-
 

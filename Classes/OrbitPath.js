@@ -1,21 +1,19 @@
 import { globalMeshResolution } from "../globalParameters";
 import * as THREE from 'three'
 import CelestialBody from "./CelestialBody";
-import degreeToRadian from "../functions/Utility/degreeToRadian";
+import { clamp } from "three/src/math/MathUtils.js";
+
 
 
 /**
  * @param { CelestialBody} target Targeted celestial body to get distance and orbit data from
  * @param { THREE.Color} color the color of the  path
- * @param { Number} angle the angle of the  path
  */
 export default class OrbitPath{
-    constructor( target, color = 0xffffff, angle){
+    constructor( target, color = 0xffffff){
         this.target = target
         this.color = color
         this.resolution = globalMeshResolution
-        this.name = target.name
-        this.angle = degreeToRadian(angle)
 
         const curve = new THREE.EllipseCurve(
             this.target.orbitTarget.position.x,  this.target.orbitTarget.position.y,  // ax, aY
@@ -23,9 +21,13 @@ export default class OrbitPath{
             0,  2 * Math.PI,  // aStartAngle, aEndAngle
             false,            // aClockwise
         )
-    
         
-        const points = curve.getPoints( this.target.computedRadius * this.resolution * 10 )
+        const pointsNumber = clamp(
+            this.target.computedDistance * 2 * Math.PI,
+            this.resolution,
+            this.resolution * 10
+        )
+        const points = curve.getPoints( Math.round(pointsNumber) )
         const geometry = new THREE.BufferGeometry().setFromPoints( points )
       
         const material = new THREE.LineBasicMaterial({ 

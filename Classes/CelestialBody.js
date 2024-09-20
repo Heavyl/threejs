@@ -17,6 +17,7 @@ export default class CelestialBody extends THREE.Group{
       //Graphic parameters :
       this.resolution = globalMeshResolution
       this.orbitPathColor
+      this.orbitPathRes
   
       //Basic init values
       this.radius = radius // in km
@@ -27,8 +28,9 @@ export default class CelestialBody extends THREE.Group{
       this.material = material
       
       //Orbit
-      this.orbitingSpeed = 29.7827 // in km/s
+      this.orbitingSpeed = 0 // in km/s
       this.distanceFromTarget = 0
+      
 
       //Axial and planeTilt
       this.axialTilt = 0
@@ -36,7 +38,7 @@ export default class CelestialBody extends THREE.Group{
 
       //Group core
       this.body = new THREE.Group()   
-      // this.children = new THREE.Group()          
+      
 
     } 
     build(){
@@ -44,7 +46,6 @@ export default class CelestialBody extends THREE.Group{
       //Create Pivot point (to manage planar shifting)
       this.pivotPoint = new THREE.Group()
       this.pivotPoint.name ='Pivot Point'
-      
       
       //Set Computed values, to limit scaling abération
       this.computedRadius = this.radius * scale
@@ -58,10 +59,10 @@ export default class CelestialBody extends THREE.Group{
         this.orbitTargetBody = this.orbitTarget.body
 
         //Compute distance from target
-        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget) / distanceFactor) * scale  
-        
+        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget)/distanceFactor) * scale  
+
         //Set orbit path
-        this.orbitPath = this.createOrbitPath( this.orbitPathColor ? this.orbitPathColor : 0xffffff )
+        this.orbitPath = this.createOrbitPath( this.orbitPathColor ? this.orbitPathColor : 0xffffff)
         this.pivotPoint.attach(this.orbitPath)
         this.pivotPoint.rotateZ(this.planeTilt)
         
@@ -80,7 +81,7 @@ export default class CelestialBody extends THREE.Group{
       mesh.receiveShadow = true
       mesh.castShadow = true
       
-      //Body group of celestial Object
+      //Body group to add mesh to (surface, atmosphere)
       this.body.add(mesh)
       this.body.name = 'Body' 
       if(this.computedDistance){
@@ -92,12 +93,14 @@ export default class CelestialBody extends THREE.Group{
       this.attach(this.pivotPoint)
       this.body.rotateZ(this.axialTilt)
       
-      //Labels
+      //Labels and pointer
       const label = new Label(this)
       const labels = new THREE.Group()
       labels.name = 'labels'
       labels.add(label)
       this.body.add(labels)
+
+      this.cameraDistance
     }
     /**
      * Manage body rotation on itself. Update position of body.
@@ -118,11 +121,10 @@ export default class CelestialBody extends THREE.Group{
      * @param {THREE.Object3D} target The orbit target
      * @param {Boolean} clockwise Orbit direction. True if clockwise, false if counterclockwise
      */
-    orbit(time, target, clockwise = true){
-      
+    orbit(time, clockwise = true){
+      const target = this.orbitTarget
       const targetPosition = new THREE.Vector3()
       target.body.getWorldPosition(targetPosition)
-
       this.pivotPoint.position.set(targetPosition.x,targetPosition.y, targetPosition.z)
       
       //Manage Orbit direction
@@ -131,10 +133,9 @@ export default class CelestialBody extends THREE.Group{
         orbitDirection = -1
       }
       //Orbit mathematics      
-
-      this.body.position.x  = targetPosition.x +( Math.cos(this.computedSpeed* time) * (this.computedDistance * orbitDirection))
-      this.body.position.z  = targetPosition.z +( Math.sin(this.computedSpeed * time) * this.computedDistance)
-      this.body.position.sub(this.orbitTarget.body.position) // correct position for child bodies
+      this.body.position.x = target.position.x +( Math.cos(this.computedSpeed* time) * (this.computedDistance * orbitDirection))
+      this.body.position.z = target.position.z +( Math.sin(this.computedSpeed * time) * this.computedDistance)
+      
       this.body.getWorldPosition(this.coordinate)
       
     }
@@ -144,7 +145,7 @@ export default class CelestialBody extends THREE.Group{
      * @param {Number} angle Angle of planar tilt (in degree)
      * @returns An orbit path to render in physical world
      */
-    createOrbitPath(color, angle){  
-      return new OrbitPath(this, color, angle)          
+    createOrbitPath(color){  
+      return new OrbitPath(this, color)          
     }
   }
