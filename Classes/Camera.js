@@ -4,6 +4,7 @@ import * as THREE from 'three'
 export default class Camera extends THREE.PerspectiveCamera{
     constructor(){
         super()
+        this.fov
         this.target = new THREE.Vector3(0,0,0)//Set cam to world origin
         this.oldTarget
         this.delta
@@ -18,6 +19,10 @@ export default class Camera extends THREE.PerspectiveCamera{
     getOldTargetCoord(){
         this.target.body.getWorldPosition(this.oldTargetCoordinate)  
     }
+    /**
+     * Get delta between old target position and new target position
+     * @returns {THREE.Vector3}
+     */
     getDelta(){
         return this
             .target
@@ -44,9 +49,15 @@ export default class Camera extends THREE.PerspectiveCamera{
           }else{
             this.inTransition = false
             this.x = 0.01
-          }
-          
-           
+          }   
+    }
+    resetTransition(){
+        this.x = 0.01
+    }
+    travel(oldtarget, newtarget){
+        //calcule distance between old position an new target position
+        //Each frame, get closer to the new target
+        //repeat while distance between camera and newtarget superior to given value or range
     }
 
 }

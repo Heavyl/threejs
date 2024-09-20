@@ -29,11 +29,13 @@ const aspect = {
   width : window.innerWidth,
   height : window.innerHeight
 }
-const fov = 75
-const near = 0.01
-const far = 100000
 
-const camera = new Camera(fov, aspect.width / aspect.height, near, far)
+THREE.PerspectiveCamera
+const camera = new Camera()
+camera.fov = 75
+camera.near = 0.01
+camera.far = 100000
+camera.aspect = aspect.width / aspect.height
 scene.add(camera)
 
 camera.position.z = 5
@@ -506,8 +508,9 @@ const clock = new THREE.Clock()
 let elapsedTime = null
 
 
-
-
+/**
+ * LOAD EVENT
+ */
 
 window.addEventListener('load', ()=>{
   //Set canvas size on loading page
@@ -522,16 +525,18 @@ window.addEventListener('load', ()=>{
         camera.oldTarget = camera.target //Keep track of old target
         camera.target = newTarget // set new target to be the selected one
         
-        //Switch in transition mode id target is different from before
-        if(camera.oldTarget != camera.target){
-          camera.inTransition = true
+        //Switch in transition mode if target is different from before
+        if(camera.oldTarget != camera.target ){
+          !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
         }
-        
       })
   })
-}
-  
-)
+})
+
+/**
+ * RESIZE EVENT
+ */
+
 //Resize canvas for responsivness
 window.addEventListener("resize", (e)=>{
   setCanvasSize()
@@ -600,7 +605,8 @@ function animate(){
   }else{
     orbitControls.target = camera.target.coordinate
   }
-
+  const cameraDistance = camera.target.position.distanceTo(camera.position)
+  console.log(cameraDistance)
   // console.log(camera.inTransition)
   update()
 
