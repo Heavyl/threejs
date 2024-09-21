@@ -527,7 +527,12 @@ window.addEventListener('load', ()=>{
         
         //Switch in transition mode if target is different from before
         if(camera.oldTarget != camera.target ){
+          console.log("transition start")
           !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
+        }else{          
+          console.log("Travel start")
+
+          !camera.inTravel ? camera.inTravel = true : camera.resetTravel()
         }
       })
   })
@@ -580,7 +585,7 @@ function animate(){
   neptune.rotate(time)
   
   //Get camera target coordinate before every other animation
-  camera.getOldTargetCoord()
+  camera.getOldCoord()
 
   //Orbits
   earth.orbit(time, false)  
@@ -596,18 +601,18 @@ function animate(){
   neptune.orbit(time,false)
   test.orbit(time, false)
 
-
-  camera.position.add(camera.getDelta())
-  
-
+  //Camera transition logic
+  if(camera.inTravel){
+    camera.travel()
+  }else{
+    camera.position.add(camera.getDelta())
+  }
   if(camera.inTransition){
-    camera.transition(orbitControls)
+    camera.changeFocus(orbitControls)  
   }else{
     orbitControls.target = camera.target.coordinate
   }
-  const cameraDistance = camera.target.position.distanceTo(camera.position)
-  console.log(cameraDistance)
-  // console.log(camera.inTransition)
+  
   update()
 
 }

@@ -6,18 +6,29 @@ export default class Camera extends THREE.PerspectiveCamera{
         super()
         this.fov
         this.target = new THREE.Vector3(0,0,0)//Set cam to world origin
-        this.oldTarget
         this.delta
+        this.coordinates = new THREE.Vector3()
         this.oldTargetCoordinate = new THREE.Vector3()
+        this.oldCoordinate = new THREE.Vector3()
+
+        //Transition
         this.inTransition = false
-        this.transDuration = 1000
-        this.x = 0.01
+        this.transCount = 1
+        this.transStep = 0.01
+
+        //Camera travelling
+        this.inTravel = false
+        this.travelStep = 0.01
+        this.travelCount = 1
+        
+
     }
     setTarget(newTarget){
         this.target = newTarget
     }
-    getOldTargetCoord(){
+    getOldCoord(){
         this.target.body.getWorldPosition(this.oldTargetCoordinate)  
+        this.getWorldPosition(this.oldCoordinate)  
     }
     /**
      * Get delta between old target position and new target position
@@ -30,34 +41,47 @@ export default class Camera extends THREE.PerspectiveCamera{
             .clone()
             .sub(this.oldTargetCoordinate)
     }
+
     /**
      * Takes an OrbitControls in input and manage smooth transition on camera target change
      * @param {THREE.orbitControls} orbitControls The orbit control 
      */
-    transition(orbitControls){
+    changeFocus(orbitControls){
         
-        if( this.x < 1){
-      
+        if( this.transStep < this.transCount){      
             orbitControls.target = orbitControls.target
             .clone()
             .add(this.target.coordinate.clone()
             .sub(orbitControls.target)
-            .multiplyScalar(this.x)) 
-      
-            this.x = this.x + 0.001
-            
-          }else{
-            this.inTransition = false
-            this.x = 0.01
-          }   
+            .multiplyScalar(this.transStep)) 
+            // orbitControls.target.lerp(this.target.coordinate, this.step)
+            this.transStep = this.transStep + 0.01
+            return
+        }
+
+        this.resetTransition()
+           
+    }
+    travel(){ 
+        if( this.travelStep < this.travelCount){      
+            const scalar = this.target.computedDistFromCam
+            this.position.lerp(this.target.coordinate.clone().addScalar(scalar), this.travelStep)
+            this.travelStep = this.travelStep + 0.01
+            return
+        }       
+        this.resetTravel()
+        this.position.add(this.getDelta())     
     }
     resetTransition(){
-        this.x = 0.01
+        this.transStep = 0.01
+        this.inTransition = false
+        console.log('Transition over')
     }
-    travel(oldtarget, newtarget){
-        //calcule distance between old position an new target position
-        //Each frame, get closer to the new target
-        //repeat while distance between camera and newtarget superior to given value or range
+    resetTravel(){
+        this.travelStep = 0.01
+        this.inTravel = false
+        console.log('Travel over')
     }
+    
 
 }

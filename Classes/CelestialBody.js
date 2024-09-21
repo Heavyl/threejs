@@ -51,6 +51,7 @@ export default class CelestialBody extends THREE.Group{
       this.computedRadius = this.radius * scale
       this.computedSpeed = (scale * this.orbitingSpeed * globalSpeed ) / distanceFactor 
       this.computedRevSpeed = scale * this.revolutionSpeed * globalSpeed 
+      this.computedDistFromCam = this.computedRadius * 2
       
       if(this.orbitTarget){
         
