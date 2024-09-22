@@ -1,8 +1,9 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
 
 
 //------------------Mercury---------------------
@@ -18,6 +19,7 @@ const mercuryMaterial = new THREE.MeshPhysicalMaterial({
 //Geometry 
 const mercury = new Planet(2439, sun, 0, mercuryMaterial)
 
+mercury.isOrbiting = true
 mercury.orbitingSpeed = 47.362
 mercury.revolutionSpeed = 0.003
 mercury.name = 'Mercury'

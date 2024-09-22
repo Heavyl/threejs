@@ -1,8 +1,9 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
 
 //------------------Uranus---------------------
 
@@ -17,6 +18,8 @@ const uranusMaterial = new THREE.MeshPhysicalMaterial({
 
 //Geometry
 const uranus = new Planet(25362, sun, 0, uranusMaterial)
+
+uranus.isOrbiting = true
 uranus.orbitingSpeed = 6.835
 uranus.revolutionSpeed = 2.59
 uranus.name = 'Uranus'

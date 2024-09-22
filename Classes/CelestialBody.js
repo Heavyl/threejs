@@ -14,6 +14,7 @@ export default class CelestialBody extends THREE.Group{
     constructor(radius = 1000, orbitTarget = null, material = new THREE.MeshStandardMaterial()){
       super()
       this.name = 'Celestial Body'
+
       //Graphic parameters :
       this.resolution = globalMeshResolution
       this.orbitPathColor
@@ -23,6 +24,7 @@ export default class CelestialBody extends THREE.Group{
       this.radius = radius // in km
       this.revolutionSpeed = 1 // in km/s
       this.coordinate = new THREE.Vector3()
+      this.isOrbiting 
     
       //Materials
       this.material = material

@@ -1,10 +1,9 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
-import Ring from '../../classes/Ring'
-
+import { au } from '../../../globalParameters'
+import Ring from '../../../classes/Ring'
 
 //------------------Saturn---------------------
 
@@ -22,6 +21,7 @@ const saturnMaterial = new THREE.MeshStandardMaterial({
 //Geometry
 const saturn = new Planet(58232, sun, 0, saturnMaterial)
 
+saturn.isOrbiting = true
 saturn.orbitingSpeed = 9.6725
 saturn.revolutionSpeed = 9.68
 saturn.name = 'Saturn'

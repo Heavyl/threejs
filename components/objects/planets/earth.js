@@ -1,8 +1,9 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
 
 
 //---------------Earth-------------------
@@ -28,6 +29,7 @@ const earthMaterial = new THREE.MeshStandardMaterial({
 const earth = new Planet(6371, null, 23.5, earthMaterial)
 earth.revolutionSpeed = 0.465
 earth.orbitingSpeed = 29.72
+earth.isOrbiting = true
 earth.name = 'Earth'
 earth.orbitTarget = sun
 earth.distanceFromTarget = 1 * au 
@@ -74,6 +76,7 @@ const moonMaterial = new THREE.MeshPhysicalMaterial({
   map : moonColorTexture
 })
 const moon = new Planet(1737, earth, 0, moonMaterial)
+moon.isOrbiting = true
 moon.orbitingSpeed = 10.02
 moon.name = 'Moon'
 moon.orbitTarget = earth

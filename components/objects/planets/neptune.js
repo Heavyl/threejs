@@ -1,8 +1,10 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
+
 
 
 //------------------Neptune---------------------
@@ -18,6 +20,7 @@ const neptuneMaterial = new THREE.MeshPhysicalMaterial({
 //Geometry
 const neptune = new Planet(24622, sun, 0, neptuneMaterial)
 
+neptune.isOrbiting = true
 neptune.orbitingSpeed = 5.43
 neptune.revolutionSpeed = 2.68
 neptune.name = 'Neptune'

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Star from '../../classes/Star'
+import { textureLoader } from '../../loaders/textureLoader'
+import Star from '../../../classes/Star'
 
 
 //-----------------sun------------------

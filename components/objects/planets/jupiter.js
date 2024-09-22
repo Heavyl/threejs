@@ -1,8 +1,9 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
 
 
 
@@ -19,6 +20,7 @@ const jupiterMaterial = new THREE.MeshPhysicalMaterial({
 
 //Geometry
 const jupiter = new Planet(71492, sun, 0, jupiterMaterial)
+jupiter.isOrbiting = true
 jupiter.orbitingSpeed = 13.058
 jupiter.revolutionSpeed = 13.06
 jupiter.name = 'Jupiter'

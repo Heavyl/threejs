@@ -1,9 +1,9 @@
-
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
 
 //------------------Venus---------------------
 
@@ -16,6 +16,8 @@ const venusMaterial = new THREE.MeshPhysicalMaterial({
   map : venusColorTexture
 })
 const venus = new Planet(6051, sun, 0, venusMaterial)
+
+venus.isOrbiting = true
 venus.orbitingSpeed = 35.025
 venus.revolutionSpeed = 0.0018
 venus.name = 'Venus'

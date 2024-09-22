@@ -1,8 +1,9 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../components/loaders/textureLoader'
-import Planet from '../../classes/Planet'
+import { textureLoader } from '../../loaders/textureLoader'
+import Planet from '../../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../globalParameters'
+import { au } from '../../../globalParameters'
+
 
 
 //------------------Mars---------------------
@@ -17,6 +18,7 @@ const marsMaterial = new THREE.MeshPhysicalMaterial({
 
 //Geometry
 const mars = new Planet(3389, sun, 0, marsMaterial)
+mars.isOrbiting = true
 mars.orbitingSpeed = 24.13
 mars.revolutionSpeed = 0.24
 mars.name = 'Mars'
@@ -54,6 +56,7 @@ mars.body.add(mars.atmosphere.layers)
 
 const deimosMaterial = new THREE.MeshPhysicalMaterial(0xffffff)
 const deimos = new Planet(15, mars, 0, deimosMaterial)
+deimos.isOrbiting = true
 deimos.orbitingSpeed = 1.35
 deimos.revolutionSpeed = 0.24
 deimos.orbitTarget = mars
@@ -67,6 +70,7 @@ deimos.build()
 
 const phobosMaterial = new THREE.MeshPhysicalMaterial(0xffffff)
 const phobos = new Planet(25.90, mars, 0, phobosMaterial)
+phobos.isOrbiting = true
 phobos.orbitingSpeed = 2.138
 phobos.revolutionSpeed = 0.24
 phobos.orbitTarget = mars

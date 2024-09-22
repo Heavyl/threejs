@@ -4,41 +4,42 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import { labelRenderer } from '../renderers/css2d'
 import { camera } from '../cameras/camera'
 
-import { earth, moon } from '../../objects/planets/earth'
-import { sun } from '../../objects/stars/sun'
-import { mercury } from '../../objects/planets/mercury'
-import { venus } from '../../objects/planets/venus'
-import { deimos, mars, phobos } from '../../objects/planets/mars'
-import { jupiter } from '../../objects/planets/jupiter'
-import { saturn } from '../../objects/planets/saturn'
-import { uranus } from '../../objects/planets/uranus'
-import { neptune } from '../../objects/planets/neptune'
+import { earth, moon } from '../objects/planets/earth'
+import { sun } from '../objects/stars/sun'
+import { mercury } from '../objects/planets/mercury'
+import { venus } from '../objects/planets/venus'
+import { deimos, mars, phobos } from '../objects/planets/mars'
+import { jupiter } from '../objects/planets/jupiter'
+import { saturn } from '../objects/planets/saturn'
+import { uranus } from '../objects/planets/uranus'
+import { neptune } from '../objects/planets/neptune'
 
 
-const scene = new THREE.Scene()
+const scene = new THREE.Scene({
+    name: 'Scene'
+})
 
 //-------------- Objects --------------
 
-scene.add(sun)
 
-sun.add(mercury)
-sun.add(venus)
-earth.add(moon)
-sun.add(earth)
-mars.add(deimos)
-mars.add(phobos)
-sun.add(mars)
-sun.add(jupiter)
-sun.add(saturn)
-sun.add(uranus)
-sun.add(neptune)
+const solarSystem = new THREE.Group()
+solarSystem.name = "Solar System"
 
+solarSystem.add(
+    sun,
+    mercury,
+    venus,
+    earth.add(moon),
+    mars.add(deimos, phobos),
+    jupiter,
+    saturn,
+    uranus,
+    neptune
+)
+
+scene.add(solarSystem)
 scene.add(camera)
 
-camera.position.z = 5
-camera.position.y = 5
-
-camera.setTarget(earth)
 
 //------------ Orbit Control ------------- 
 
