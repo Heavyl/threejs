@@ -21,6 +21,7 @@ const saturnMaterial = new THREE.MeshStandardMaterial({
 //Geometry
 const saturn = new Planet(58232, sun, 0, saturnMaterial)
 
+saturn.isRotating = true
 saturn.isOrbiting = true
 saturn.orbitingSpeed = 9.6725
 saturn.revolutionSpeed = 9.68

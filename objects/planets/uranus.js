@@ -19,6 +19,7 @@ const uranusMaterial = new THREE.MeshPhysicalMaterial({
 //Geometry
 const uranus = new Planet(25362, sun, 0, uranusMaterial)
 
+uranus.isRotating = true
 uranus.isOrbiting = true
 uranus.orbitingSpeed = 6.835
 uranus.revolutionSpeed = 2.59

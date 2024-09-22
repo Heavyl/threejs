@@ -19,6 +19,7 @@ import { venus } from "./objects/planets/venus"
 
 import { renderer } from './components/renderers/mainRenderer'
 import { labelRenderer } from './components/renderers/css2d'
+import { solarSystemObject } from './data/solarSystem'
 
 
 
@@ -84,35 +85,24 @@ function animate(){
   renderer.render(scene, camera)
   labelRenderer.render( scene, camera )
 
-  //Rotations
-  
-  mercury.rotate(time)
-  venus.rotate(time,true)
-  earth.rotate(time)
-  mars.rotate(time)  
-  jupiter.rotate(time)
-  saturn.rotate(time)
-  uranus.rotate(time)
-  neptune.rotate(time)
   
   //Get camera target coordinate before every other animation
   camera.getOldCoord()
 
-  //Orbits
-  mercury.orbit(time, false)
-  venus.orbit(time, false)
-  earth.orbit(time, false)  
-  moon.orbit(time)
-  mars.orbit(time, false)
-  deimos.orbit(time, false)
-  phobos.orbit(time, false)
-  jupiter.orbit(time, false)
-  saturn.orbit(time, false)
-  uranus.orbit(time,false)
-  neptune.orbit(time,false)
+  //Object state machine
+  for( const [name, object] of Object.entries(solarSystemObject)){
 
+    //Orbits
+    if(object.isOrbiting){
+      object.orbit(time)
+    }
+    //Rotations
+    if(object.isRotating){
+      object.rotate(time)
+    }
+  }
 
-  //Camera transition logic
+  //Camera state machine
   if(camera.inTravel){
     camera.travel()
   }else{

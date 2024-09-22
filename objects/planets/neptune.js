@@ -19,6 +19,7 @@ const neptuneMaterial = new THREE.MeshPhysicalMaterial({
 //Geometry
 const neptune = new Planet(24622, sun, 0, neptuneMaterial)
 
+neptune.isRotating = true
 neptune.isOrbiting = true
 neptune.orbitingSpeed = 5.43
 neptune.revolutionSpeed = 2.68

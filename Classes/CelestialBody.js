@@ -23,8 +23,10 @@ export default class CelestialBody extends THREE.Group{
       //Basic init values
       this.radius = radius // in km
       this.revolutionSpeed = 1 // in km/s
+      this.isRotating = false
       this.coordinate = new THREE.Vector3()
       this.isOrbiting = false
+      this.orbitDirection = 'counterclockwise'
     
       //Materials
       this.material = material
@@ -120,22 +122,26 @@ export default class CelestialBody extends THREE.Group{
     /**
      * Manage the orbit animation, update position of body
      * @param {THREE.Clock} time Time from THREE.clock
-     * @param {THREE.Object3D} target The orbit target
      * @param {Boolean} clockwise Orbit direction. True if clockwise, false if counterclockwise
      */
-    orbit(time, clockwise = true){
+    orbit(time){
       const target = this.orbitTarget
       const targetPosition = new THREE.Vector3()
       target.body.getWorldPosition(targetPosition)
       this.pivotPoint.position.set(targetPosition.x,targetPosition.y, targetPosition.z)
       
-      //Manage Orbit direction
-      let orbitDirection = 1
-      if(clockwise === false){
-        orbitDirection = -1
+      
+      //Orbit direction
+      let direction = -1
+      if(this.orbitDirection === 'counterclockwise') {
+        direction = -1
+      }else if(this.orbitDirection === 'clockwise'){
+        direction = 1
       }
+     
+      
       //Orbit mathematics      
-      this.body.position.x = target.position.x +( Math.cos(this.computedSpeed* time) * (this.computedDistance * orbitDirection))
+      this.body.position.x = target.position.x +( Math.cos(this.computedSpeed* time) * (this.computedDistance * direction))
       this.body.position.z = target.position.z +( Math.sin(this.computedSpeed * time) * this.computedDistance)
       
       this.body.getWorldPosition(this.coordinate)

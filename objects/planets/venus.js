@@ -17,6 +17,7 @@ const venusMaterial = new THREE.MeshPhysicalMaterial({
 })
 const venus = new Planet(6051, sun, 0, venusMaterial)
 
+venus.isRotating = true
 venus.isOrbiting = true
 venus.orbitingSpeed = 35.025
 venus.revolutionSpeed = 0.0018

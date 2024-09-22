@@ -4,9 +4,6 @@ import Planet from '../../classes/Planet'
 import { sun } from '../stars/sun'
 import { au } from '../../globalParameters'
 
-
-
-
 //------------------Jupiter---------------------
 
 
@@ -20,6 +17,8 @@ const jupiterMaterial = new THREE.MeshPhysicalMaterial({
 
 //Geometry
 const jupiter = new Planet(71492, sun, 0, jupiterMaterial)
+
+jupiter.isRotating = true
 jupiter.isOrbiting = true
 jupiter.orbitingSpeed = 13.058
 jupiter.revolutionSpeed = 13.06

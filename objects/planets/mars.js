@@ -18,6 +18,8 @@ const marsMaterial = new THREE.MeshPhysicalMaterial({
 
 //Geometry
 const mars = new Planet(3389, sun, 0, marsMaterial)
+
+mars.isRotating = true
 mars.isOrbiting = true
 mars.orbitingSpeed = 24.13
 mars.revolutionSpeed = 0.24
