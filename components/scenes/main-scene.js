@@ -4,15 +4,11 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import { labelRenderer } from '../renderers/css2d'
 import { camera } from '../cameras/camera'
 
-import { earth, moon } from '../objects/planets/earth'
-import { sun } from '../objects/stars/sun'
-import { mercury } from '../objects/planets/mercury'
-import { venus } from '../objects/planets/venus'
-import { deimos, mars, phobos } from '../objects/planets/mars'
-import { jupiter } from '../objects/planets/jupiter'
-import { saturn } from '../objects/planets/saturn'
-import { uranus } from '../objects/planets/uranus'
-import { neptune } from '../objects/planets/neptune'
+
+import { solarSystemObject } from '../../data/solarSystem'
+import Planet from '../../classes/Planet'
+import Star from '../../classes/Star'
+import CelestialBody from '../../classes/CelestialBody'
 
 
 const scene = new THREE.Scene({
@@ -21,27 +17,20 @@ const scene = new THREE.Scene({
 
 //-------------- Objects --------------
 
-
+const systemObj = solarSystemObject
 const solarSystem = new THREE.Group()
 solarSystem.name = "Solar System"
 
-solarSystem.add(
-    sun,
-    mercury,
-    venus,
-    earth.add(moon),
-    mars.add(deimos, phobos),
-    jupiter,
-    saturn,
-    uranus,
-    neptune
-)
+for( const [name, object] of Object.entries(systemObj)){
+    populate( solarSystem, object )
+}
 
 scene.add(solarSystem)
-scene.add(camera)
 
 
 //------------ Orbit Control ------------- 
+
+scene.add(camera)
 
 export const orbitControls = new OrbitControls(camera,labelRenderer.domElement)
 orbitControls.enableDamping = true
@@ -68,3 +57,18 @@ const ambientLigth = new THREE.AmbientLight(0xffffff, 0.005)
 scene.add(ambientLigth)
 
 export {scene}
+
+/**
+ * Small function to automatically add any CelestialBody (and child classes) to the right parent. 
+ * If the object have an 'orbitTarget' paremeter defined, object use this target as a parent.
+ * Else it add the object to the firstParent indicated as second parameter.
+ * @example 
+ * @param {Planet | Star | CelestialBody} firstParent The firstParent where every other will be attached
+ * @param {Planet | Star | CelestialBody} object The object to add to the scene, as a child of it's 'orbitTarget'
+ * @returns 
+ */
+function populate( firstParent, object){
+    const parent = object.orbitTarget
+    parent ? parent.add(object) : firstParent.add(object)      
+    
+}

@@ -6,16 +6,20 @@ import { timeOffset } from './globalParameters'
 
 //Object imports
 import { orbitControls, scene } from './components/scenes/main-scene'
-import { earth, moon } from '/components/objects/planets/earth'
-import { mercury } from './components/objects/planets/mercury'
-import { venus } from './components/objects/planets/venus'
-import { deimos, mars, phobos } from './components/objects/planets/mars'
-import { jupiter } from './components/objects/planets/jupiter'
-import { saturn } from './components/objects/planets/saturn'
-import { uranus } from './components/objects/planets/uranus'
-import { neptune } from './components/objects/planets/neptune'
+
+import { earth, moon } from "./objects/planets/earth"
+import { jupiter } from "./objects/planets/jupiter"
+import { deimos, mars, phobos } from "./objects/planets/mars"
+import { mercury } from "./objects/planets/mercury"
+import { neptune } from "./objects/planets/neptune"
+import { saturn } from "./objects/planets/saturn"
+import { uranus } from "./objects/planets/uranus"
+import { venus } from "./objects/planets/venus"
+
+
 import { renderer } from './components/renderers/mainRenderer'
 import { labelRenderer } from './components/renderers/css2d'
+
 
 
 //------------- Stats init ----------------

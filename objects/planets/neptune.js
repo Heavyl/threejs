@@ -1,9 +1,8 @@
 import * as THREE from 'three'
-import { textureLoader } from '../../loaders/textureLoader'
-import Planet from '../../../classes/Planet'
+import { textureLoader } from '../../components/loaders/textureLoader'
+import Planet from '../../classes/Planet'
 import { sun } from '../stars/sun'
-import { au } from '../../../globalParameters'
-
+import { au } from '../../globalParameters'
 
 
 

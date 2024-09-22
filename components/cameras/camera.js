@@ -1,5 +1,6 @@
 import Camera from '../../classes/Camera'
-import { earth } from '../Objects/planets/earth'
+import { earth } from '../../objects/planets/earth'
+
 
 const aspect = {
     width : window.innerWidth,

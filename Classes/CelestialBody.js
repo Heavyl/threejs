@@ -24,7 +24,7 @@ export default class CelestialBody extends THREE.Group{
       this.radius = radius // in km
       this.revolutionSpeed = 1 // in km/s
       this.coordinate = new THREE.Vector3()
-      this.isOrbiting 
+      this.isOrbiting = false
     
       //Materials
       this.material = material
