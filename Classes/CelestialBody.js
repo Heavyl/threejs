@@ -30,7 +30,6 @@ export default class CelestialBody extends THREE.Group{
       //Orbit
       this.orbitingSpeed = 0 // in km/s
       this.distanceFromTarget = 0
-      
 
       //Axial and planeTilt
       this.axialTilt = 0
@@ -60,7 +59,7 @@ export default class CelestialBody extends THREE.Group{
         this.orbitTargetBody = this.orbitTarget.body
 
         //Compute distance from target
-        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget)/distanceFactor) * scale  
+        this.computedDistance = ((this.orbitTarget.radius + this.distanceFromTarget / distanceFactor) * scale  ) 
 
         //Set orbit path
         this.orbitPath = this.createOrbitPath( this.orbitPathColor ? this.orbitPathColor : 0xffffff)

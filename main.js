@@ -15,7 +15,6 @@ import Camera from './Classes/Camera';
 
 
 
-
 /**
  * SCENE CREATION ***************************************
  */
