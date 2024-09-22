@@ -95,6 +95,7 @@ function animate(){
     //Orbits
     if(object.isOrbiting){
       object.orbit(time)
+      console.log(name, object)
     }
     //Rotations
     if(object.isRotating){
