@@ -32,6 +32,7 @@ scene.add(solarSystem)
 
 scene.add(camera)
 
+
 export const orbitControls = new OrbitControls(camera,labelRenderer.domElement)
 orbitControls.enableDamping = true
 orbitControls.dampingFactor = 0.02
@@ -55,6 +56,7 @@ scene.background = skyTexture
 
 const ambientLigth = new THREE.AmbientLight(0xffffff, 0.005)
 scene.add(ambientLigth)
+
 
 export {scene}
 

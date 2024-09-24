@@ -4,18 +4,7 @@ import { GUI } from 'dat.gui'
 import { camera } from './components/cameras/camera'
 import { timeOffset } from './globalParameters'
 
-//Object imports
 import { orbitControls, scene } from './components/scenes/main-scene'
-
-import { earth, moon } from "./objects/planets/earth"
-import { jupiter } from "./objects/planets/jupiter"
-import { deimos, mars, phobos } from "./objects/planets/mars"
-import { mercury } from "./objects/planets/mercury"
-import { neptune } from "./objects/planets/neptune"
-import { saturn } from "./objects/planets/saturn"
-import { uranus } from "./objects/planets/uranus"
-import { venus } from "./objects/planets/venus"
-
 
 import { renderer } from './components/renderers/mainRenderer'
 import { labelRenderer } from './components/renderers/css2d'
@@ -39,10 +28,12 @@ const clock = new THREE.Clock()
 //------------- On Load Events ----------------
 
 window.addEventListener('load', ()=>{
+  //Start Clock
+  clock.start()
   //Set canvas size on loading page
   setCanvasSize()
 
-  //Event for click on labels
+  //Setup event for click on labels
   const labels = document.querySelectorAll('.label')  
   
   labels.forEach((label)=>{
@@ -50,15 +41,21 @@ window.addEventListener('load', ()=>{
         const newTarget = scene.getObjectByName(e.target.dataset.name)
         camera.oldTarget = camera.target //Keep track of old target
         camera.target = newTarget // set new target to be the selected one
-        
+
+       
         //Switch in transition mode if target is different from before
         if(camera.oldTarget != camera.target ){
-          console.log("transition start")
+          console.log("transition start! ", 'Target :', camera.target)
           !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
         }else{          
-          console.log("Travel start")
-
-          !camera.inTravel ? camera.inTravel = true : camera.resetTravel()
+          if(camera.focusTarget !== camera.target){
+            camera.focusTarget = camera.target
+            camera.inTravel = true 
+            console.log("Travel start")
+          }else{
+            console.log(camera.target.name, 'Already in focus')
+          }
+          
         }
       })
   })
@@ -69,7 +66,13 @@ window.addEventListener('load', ()=>{
 window.addEventListener("resize", (e)=>{
   setCanvasSize()
 })
+//-------------- Helpers------------------
 
+const arrow = new THREE.ArrowHelper(
+  camera.target.coordinates,
+  camera.position,
+  10,
+)
 
 //------------ Animation Loop -----------------
 
@@ -84,7 +87,7 @@ function animate(){
   //render
   renderer.render(scene, camera)
   labelRenderer.render( scene, camera )
-
+ 
   
   //Get camera target coordinate before every other animation
   camera.getOldCoord()
@@ -95,7 +98,6 @@ function animate(){
     //Orbits
     if(object.isOrbiting){
       object.orbit(time)
-      console.log(name, object)
     }
     //Rotations
     if(object.isRotating){
@@ -105,12 +107,14 @@ function animate(){
 
   //Camera state machine
   if(camera.inTravel){
-    camera.travel()
+    camera.travel(time)
+    
   }else{
     camera.position.add(camera.getDelta())
   }
-  if(camera.inTransition){
+  if(camera.inTransition){    
     camera.changeFocus(orbitControls)  
+   
   }else{
     orbitControls.target = camera.target.coordinate
   }
