@@ -17,3 +17,14 @@ body::-webkit-scrollbar {
   font-family:'Roboto';
   font-weight: '100';
 }
+/*------- UI --------*/
+
+#distance-counter{
+  position: absolute;
+  bottom: 20px;
+  left : 20px;
+  color : white;
+  padding: 0 10px 0 10px;
+  border : solid white 1px;
+  border-radius: 10px;
+}

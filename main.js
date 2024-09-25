@@ -2,13 +2,14 @@ import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { camera } from './components/cameras/camera'
-import { globalSpeed, timeOffset } from './globalParameters'
+import { globalSpeed, scale, timeOffset } from './globalParameters'
 
 import { orbitControls, scene } from './components/scenes/main-scene'
 
 import { renderer } from './components/renderers/mainRenderer'
 import { labelRenderer } from './components/renderers/css2d'
 import { solarSystemObject } from './data/solarSystem'
+import { distanceCounter } from './components/domElements/distanceCounter'
 
 
 
@@ -47,7 +48,10 @@ window.addEventListener('load', ()=>{
         if(camera.oldTarget != camera.target ){
           console.log("transition start! ", 'Target :', camera.target)
           camera.resetTravel()
-          camera.setDistanceToTarget()
+          camera.setDistanceToFocused()
+          camera.distanceToTarget = camera.distanceToFocused
+          
+
           !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
         }else{          
           if(camera.focusTarget !== camera.target){
@@ -61,6 +65,10 @@ window.addEventListener('load', ()=>{
         }
       })
   })
+  //Dom element integration
+  const canvas = document.querySelector('#three')
+
+  document.body.appendChild(distanceCounter)
 })
 
 //------------- On resize Events ----------------
@@ -68,13 +76,6 @@ window.addEventListener('load', ()=>{
 window.addEventListener("resize", (e)=>{
   setCanvasSize()
 })
-//-------------- Helpers------------------
-
-const arrow = new THREE.ArrowHelper(
-  camera.target.coordinates,
-  camera.position,
-  10,
-)
 
 //------------ Animation Loop -----------------
 
@@ -127,6 +128,10 @@ function animate(){
     orbitControls.target = camera.target.coordinate
     
   }
+
+  //ui state machine 
+  
+  distanceCounter.querySelector('p').textContent = toRealDistance(camera.distanceToTarget)
   
   update()
 
@@ -163,4 +168,46 @@ function setCanvasSize(){
   renderer.setSize(aspect.width, aspect.height)
   labelRenderer.setSize( aspect.width, aspect.height )
 }
+/**
+ * Convert computed distance to real distance. reverse 
+ * @param {*} computedDistance 
+ * @returns 
+ */
+function toRealDistance(computedDistance){
+  const realDistance =  Math.floor((computedDistance/scale) * 10 )
+  const toString = realDistance.toString().length
+  let number = 0
+  let format = ''
 
+ 
+  if(toString >= 7 & toString < 10){
+    number = formatMillion(realDistance)
+    format = 'million'
+    console.log(number)
+  }
+  else if(toString > 9){
+    number = formatBillion(realDistance)
+    format = 'billion'
+  }else{
+    number = numberWithSpaces(realDistance)
+  }
+  
+  return number  + ' ' + format + ' Km'
+}
+/**
+ * Format number and add spaces
+ * @param {Number} x 
+ * @returns 
+ */
+function numberWithSpaces(x) {
+  var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return parts.join(".");
+}
+
+function formatMillion(number){
+    return (number / 1000000).toFixed(2) 
+}
+function formatBillion(number){
+  return (number / 1000000000).toFixed(2) 
+}

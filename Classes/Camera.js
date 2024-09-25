@@ -25,6 +25,7 @@ export default class Camera extends THREE.PerspectiveCamera{
         this.travelCount = 0 
         this.travelStartAt = 0
         this.travelSpeed = 100
+        this.distanceToFocused = 0
         this.distanceToTarget = 0
 
     }
@@ -47,11 +48,10 @@ export default class Camera extends THREE.PerspectiveCamera{
     /**
      * Set distance from actual camera position to target position
      */
-    setDistanceToTarget(){
+    setDistanceToFocused(){
         //Calculate distance between position and target 
-        this.distanceToTarget = this.target.coordinate.distanceTo(this.position)
-        console.log('distance to ', this.target.name, ' :', this.distanceToTarget)
-        
+        this.distanceToFocused = this.position.distanceTo(this.target.coordinate)
+        return this.distanceToFocused 
     }
     /**
      * Takes an OrbitControls in input and manage smooth transition on camera target change
@@ -82,23 +82,19 @@ export default class Camera extends THREE.PerspectiveCamera{
         }
         //Calculate travel time 
         const timeDelta =  time - this.travelStartAt
-        const travelTime =  Math.max(3, this.distanceToTarget / this.travelSpeed)
+        const travelTime =  Math.max(3, this.distanceToFocused / this.travelSpeed)
 
         const distance = this.position.distanceTo(this.target.coordinate)
 
         //Do this while elapsed time inferior to  travel time
         if( timeDelta <= travelTime ){  
             const deltaFromBody = this.target.computedRadius * 2
-
-            if(distance <= deltaFromBody * 2) this.resetTravel()
-
+            if(distance <= deltaFromBody * 1.8) this.resetTravel()
             const tNormalized = (timeDelta) / (travelTime)
+            
             const distanceDelta = this.target.coordinate.clone().sub(this.position.clone()).addScalar(deltaFromBody)
-            
             this.position.addScaledVector(distanceDelta, easeInOutCubic(tNormalized) )
-            console.log('Distance :' , distance )
-            console.log('Delta from body :', deltaFromBody*2)
-            
+            this.distanceToTarget = distance
             return
         }       
         this.resetTravel()
