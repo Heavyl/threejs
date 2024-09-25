@@ -94,7 +94,7 @@ export default class Camera extends THREE.PerspectiveCamera{
             
             const distanceDelta = this.target.coordinate.clone().sub(this.position.clone()).addScalar(deltaFromBody)
             this.position.addScaledVector(distanceDelta, easeInOutCubic(tNormalized) )
-            this.distanceToTarget = distance
+            this.distanceToTarget = distance - deltaFromBody * 1.8
             return
         }       
         this.resetTravel()

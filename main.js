@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { camera } from './components/cameras/camera'
-import { globalSpeed, scale, timeOffset } from './globalParameters'
+import { distanceFactor, globalSpeed, scale, timeOffset } from './globalParameters'
 
 import { orbitControls, scene } from './components/scenes/main-scene'
 
@@ -174,7 +174,7 @@ function setCanvasSize(){
  * @returns 
  */
 function toRealDistance(computedDistance){
-  const realDistance =  Math.floor((computedDistance/scale) * 10 )
+  const realDistance =  Math.max( 0, Math.floor((computedDistance/scale) * distanceFactor ))
   const toString = realDistance.toString().length
   let number = 0
   let format = ''
