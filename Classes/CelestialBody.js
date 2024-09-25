@@ -27,7 +27,8 @@ export default class CelestialBody extends THREE.Group{
       this.coordinate = new THREE.Vector3()
       this.isOrbiting = false
       this.orbitDirection = 'counterclockwise'
-    
+      this.animationSpeed = globalSpeed
+      
       //Materials
       this.material = material
       
@@ -42,18 +43,18 @@ export default class CelestialBody extends THREE.Group{
       //Group core
       this.body = new THREE.Group()   
       
-
+      //Animation
+      this.play = true
     } 
     build(){
-
       //Create Pivot point (to manage planar shifting)
       this.pivotPoint = new THREE.Group()
       this.pivotPoint.name ='Pivot Point'
       
       //Set Computed values, to limit scaling abération
       this.computedRadius = this.radius * scale
-      this.computedSpeed = (scale * this.orbitingSpeed * globalSpeed ) / distanceFactor 
-      this.computedRevSpeed = scale * this.revolutionSpeed * globalSpeed 
+      this.computedSpeed = (scale * this.orbitingSpeed ) / distanceFactor 
+      this.computedRevSpeed = scale * this.revolutionSpeed 
       this.computedDistFromCam = this.computedRadius * 2
       
       if(this.orbitTarget){
@@ -117,7 +118,7 @@ export default class CelestialBody extends THREE.Group{
       }
       // this.body.rotateY(this.computedRevSpeed * revolutionDirection)
       // this.body.rotation.y = this.computedRevSpeed * time * revolutionDirection
-      this.body.rotateY((this.computedRevSpeed  * revolutionDirection)/10)
+      this.body.rotateY((this.computedRevSpeed* this.animationSpeed  * revolutionDirection)/10)
     }
     /**
      * Manage the orbit animation, update position of body
@@ -130,7 +131,6 @@ export default class CelestialBody extends THREE.Group{
       target.body.getWorldPosition(targetPosition)
       this.pivotPoint.position.set(targetPosition.x,targetPosition.y, targetPosition.z)
       
-      
       //Orbit direction
       let direction = -1
       if(this.orbitDirection === 'counterclockwise') {
@@ -138,11 +138,15 @@ export default class CelestialBody extends THREE.Group{
       }else if(this.orbitDirection === 'clockwise'){
         direction = 1
       }
-     
+      
+      
+      this.play 
+        ? this.animationSpeed = globalSpeed 
+        : this.animationSpeed = 0
       
       //Orbit mathematics      
-      this.body.position.x = target.position.x +( Math.cos(this.computedSpeed* time) * (this.computedDistance * direction))
-      this.body.position.z = target.position.z +( Math.sin(this.computedSpeed * time) * this.computedDistance)
+      this.body.position.x = target.position.x + ( Math.cos(this.computedSpeed * this.animationSpeed * time) * (this.computedDistance * direction))
+      this.body.position.z = target.position.z + ( Math.sin(this.computedSpeed * this.animationSpeed * time) * this.computedDistance)
       
       this.body.getWorldPosition(this.coordinate)
       
@@ -155,5 +159,8 @@ export default class CelestialBody extends THREE.Group{
      */
     createOrbitPath(color){  
       return new OrbitPath(this, color)          
+    }
+    computeSpeed(){
+      return scale * this.orbitingSpeed * this.animationSpeed  / distanceFactor 
     }
   }

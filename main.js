@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { camera } from './components/cameras/camera'
-import { timeOffset } from './globalParameters'
+import { globalSpeed, timeOffset } from './globalParameters'
 
 import { orbitControls, scene } from './components/scenes/main-scene'
 
@@ -46,6 +46,8 @@ window.addEventListener('load', ()=>{
         //Switch in transition mode if target is different from before
         if(camera.oldTarget != camera.target ){
           console.log("transition start! ", 'Target :', camera.target)
+          camera.resetTravel()
+          camera.setDistanceToTarget()
           !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
         }else{          
           if(camera.focusTarget !== camera.target){
@@ -97,7 +99,12 @@ function animate(){
 
     //Orbits
     if(object.isOrbiting){
-      object.orbit(time)
+      if(camera.inTravel){
+        object.play = false
+      }else{
+        object.play = true
+        object.orbit(time)
+      }
     }
     //Rotations
     if(object.isRotating){
@@ -106,17 +113,19 @@ function animate(){
   }
 
   //Camera state machine
-  if(camera.inTravel){
+  if(camera.inTravel){    
     camera.travel(time)
     
   }else{
     camera.position.add(camera.getDelta())
+   
   }
   if(camera.inTransition){    
     camera.changeFocus(orbitControls)  
    
   }else{
     orbitControls.target = camera.target.coordinate
+    
   }
   
   update()

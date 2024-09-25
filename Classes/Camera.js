@@ -9,6 +9,7 @@ export default class Camera extends THREE.PerspectiveCamera{
         this.delta
         this.oldTargetCoordinate = new THREE.Vector3()
         this.oldCoordinate = new THREE.Vector3()
+        this.coordinates = this.position
         this.focusTarget = null
         
         //Transition
@@ -23,13 +24,11 @@ export default class Camera extends THREE.PerspectiveCamera{
         this.travelStep = 0.01
         this.travelCount = 0 
         this.travelStartAt = 0
+        this.travelSpeed = 100
+        this.distanceToTarget = 0
 
-        
     }
-    setTarget(newTarget){
-        this.target = newTarget
-    }
-
+   
     getOldCoord(){
         this.target.body.getWorldPosition(this.oldTargetCoordinate)  
         this.getWorldPosition(this.oldCoordinate)  
@@ -45,8 +44,14 @@ export default class Camera extends THREE.PerspectiveCamera{
             .clone()
             .sub(this.oldTargetCoordinate)
     }
-    setTimeDelta(time){
-
+    /**
+     * Set distance from actual camera position to target position
+     */
+    setDistanceToTarget(){
+        //Calculate distance between position and target 
+        this.distanceToTarget = this.target.coordinate.distanceTo(this.position)
+        console.log('distance to ', this.target.name, ' :', this.distanceToTarget)
+        
     }
     /**
      * Takes an OrbitControls in input and manage smooth transition on camera target change
@@ -68,23 +73,32 @@ export default class Camera extends THREE.PerspectiveCamera{
         this.resetTransition()
            
     }
-    travel(time){ 
+    
+    travel(time){         
         
         //set travel start time. Based on THREE.Clock time
         if(this.travelStartAt === 0){
             this.travelStartAt = time
         }
+        //Calculate travel time 
         const timeDelta =  time - this.travelStartAt
-        console.log('Time delta', timeDelta)
+        const travelTime =  Math.max(3, this.distanceToTarget / this.travelSpeed)
 
-        
-        if( this.travelCount < this.travelValue){      
-            const scalar = this.target.computedDistFromCam
-            const distance = this.target.coordinate.clone().sub(this.position)
+        const distance = this.position.distanceTo(this.target.coordinate)
 
-            console.log('scalar',scalar)
-            this.position.lerp(this.target.coordinate.clone().addScalar(scalar), easeInOutBack(this.travelCount))
-            this.travelCount +=  this.travelStep
+        //Do this while elapsed time inferior to  travel time
+        if( timeDelta <= travelTime ){  
+            const deltaFromBody = this.target.computedRadius * 2
+
+            if(distance <= deltaFromBody * 2) this.resetTravel()
+
+            const tNormalized = (timeDelta) / (travelTime)
+            const distanceDelta = this.target.coordinate.clone().sub(this.position.clone()).addScalar(deltaFromBody)
+            
+            this.position.addScaledVector(distanceDelta, easeInOutCubic(tNormalized) )
+            console.log('Distance :' , distance )
+            console.log('Delta from body :', deltaFromBody*2)
+            
             return
         }       
         this.resetTravel()
@@ -98,17 +112,32 @@ export default class Camera extends THREE.PerspectiveCamera{
     resetTravel(){
         this.travelCount = 0
         this.inTravel = false
+        this.travelStartAt = 0
         console.log('Travel over')
     }
     
 
 }
-
+/**
+ * Ease-in ease out function, with an "elastic" twist
+ * @param {Number} x 
+ * @returns 
+ */
 function easeInOutBack(x){
     const c1 = 1.70158
     const c2 = c1 * 1.525
 
-return x < 0.5
-  ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
-  : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
+    return x < 0.5
+    ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+    : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
+}
+/**
+ * Classic Ease-in ease out function
+ * @param {Number} x 
+ * @returns 
+ */
+function easeInOutCubic(x) {
+    return x < 0.5 
+        ? 4 * x * x * x 
+        : 1 - Math.pow(-2 * x + 2, 3) / 2
 }
