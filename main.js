@@ -183,7 +183,6 @@ function toRealDistance(computedDistance){
   if(toString >= 7 & toString < 10){
     number = formatMillion(realDistance)
     format = 'million'
-    console.log(number)
   }
   else if(toString > 9){
     number = formatBillion(realDistance)
