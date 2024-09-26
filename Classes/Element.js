@@ -1,4 +1,4 @@
-/**Basic class to create DOM element
+/**Basic class to create HTML element
  * 
  * @param {String} type Html tag of the element
  * @param {String} id The id of the element
@@ -9,6 +9,7 @@ export default class Element{
     constructor(tag = 'div', id = null, classes = null ){
         //Create element
         this.element = document.createElement(tag)
+        this.updateTarget = this.element
         
         //Add id
         if(id){ this.element.setAttribute('id', id) }
@@ -24,17 +25,5 @@ export default class Element{
             }
         }
         return this.element
-    }/**
-     * 
-     * @param {String} child The child to apply the modification. Use .querySelector syntaxe
-     * @param {String | Number} newContent 
-     */
-    updateContent(child, newContent){
-        
-            this.element.querySelector(child).textContent = newContent
-            console.log(child)
-            
-        
-
     }
 }

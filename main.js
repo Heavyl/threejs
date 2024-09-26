@@ -9,7 +9,7 @@ import { orbitControls, scene } from './components/scenes/main-scene'
 import { renderer } from './components/renderers/mainRenderer'
 import { labelRenderer } from './components/renderers/css2d'
 import { solarSystemObject } from './data/solarSystem'
-import { distanceCounter } from './components/domElements/distanceCounter'
+import { distanceCounter } from './ui/elements/distanceCounter'
 
 
 
@@ -40,24 +40,26 @@ window.addEventListener('load', ()=>{
   labels.forEach((label)=>{
       label.addEventListener('pointerdown', (e)=>{
         const newTarget = scene.getObjectByName(e.target.dataset.name)
-        camera.oldTarget = camera.target //Keep track of old target
-        camera.target = newTarget // set new target to be the selected one
-
+        camera.oldTarget = camera.nextTarget //Keep track of old target
+        camera.nextTarget = newTarget
        
-        //Switch in transition mode if target is different from before
-        if(camera.oldTarget != camera.target ){
-          console.log("transition start! ", 'Target :', camera.target)
-          camera.resetTravel()
-          camera.setDistanceToFocused()
-          camera.distanceToTarget = camera.distanceToFocused
+        //If event target is different from last event firing :
+        if(camera.oldTarget !== camera.nextTarget ){
+          console.log('Target :', camera.nextTarget)
+          console.log('Old target', camera.oldTarget)
+          camera.setDistanceToNext() 
+          camera.distanceToTarget = camera.distanceToNext
           
-
-          !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
-        }else{          
-          if(camera.focusTarget !== camera.target){
-            camera.focusTarget = camera.target
-            camera.inTravel = true 
+          
+        //If event target is the same as before :
+        }else{         
+          if(camera.nextTarget !== camera.target){
+            camera.target = camera.nextTarget
+            console.log("transition start!")
             console.log("Travel start")
+            
+            !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
+            !camera.inTravel ? camera.inTravel = true : camera.resetTravel()
           }else{
             console.log(camera.target.name, 'Already in focus')
           }
@@ -66,7 +68,6 @@ window.addEventListener('load', ()=>{
       })
   })
   //Dom element integration
-  const canvas = document.querySelector('#three')
 
   document.body.appendChild(distanceCounter)
 })
@@ -116,22 +117,16 @@ function animate(){
   //Camera state machine
   if(camera.inTravel){    
     camera.travel(time)
+    camera.changeFocus(orbitControls)  
     
   }else{
     camera.position.add(camera.getDelta())
-   
-  }
-  if(camera.inTransition){    
-    camera.changeFocus(orbitControls)  
-   
-  }else{
     orbitControls.target = camera.target.coordinate
-    
   }
 
   //ui state machine 
   
-  distanceCounter.querySelector('p').textContent = toRealDistance(camera.distanceToTarget)
+  updateElement(distanceCounter, 'p', toRealDistance(camera.distanceToTarget))
   
   update()
 
@@ -169,18 +164,17 @@ function setCanvasSize(){
   labelRenderer.setSize( aspect.width, aspect.height )
 }
 /**
- * Convert computed distance to real distance. reverse 
- * @param {*} computedDistance 
- * @returns 
+ * Convert computed distance to real distance as a display purpose. 
+ * @param {Number} computedDistance 
+ * @returns a formated number as a string 
  */
 function toRealDistance(computedDistance){
   const realDistance =  Math.max( 0, Math.floor((computedDistance/scale) * distanceFactor ))
   const toString = realDistance.toString().length
   let number = 0
   let format = ''
-
  
-  if(toString >= 7 & toString < 10){
+  if(toString >= 7 & toString <= 9){
     number = formatMillion(realDistance)
     format = 'million'
   }
@@ -203,10 +197,27 @@ function numberWithSpaces(x) {
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     return parts.join(".");
 }
-
-function formatMillion(number){
-    return (number / 1000000).toFixed(2) 
+/**
+ * take a distance in entry and return a truncated equivalent in million/billion
+ * @param {Number} x 
+ * @returns 
+ */
+function formatMillion(x){
+    return (x / 1000000).toFixed(2) 
 }
-function formatBillion(number){
-  return (number / 1000000000).toFixed(2) 
+function formatBillion(x){
+  return (x / 1000000000).toFixed(2) 
+}
+/**
+ * Update html element with new content
+ * @param {HTMLElement} element HTML Element to update
+ * @param {String} selector if target is child of element, use .querySelector syntaxe ('div', '.class', '#id')
+ * @param {String | Number} content The new content
+ */
+function updateElement(element, selector, content){
+  if(selector){
+    element.querySelector(selector).textContent = content
+    return
+  }
+  element.textContent = content
 }
