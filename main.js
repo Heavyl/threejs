@@ -55,7 +55,6 @@ window.addEventListener('load', ()=>{
         }else{         
           if(camera.nextTarget !== camera.target){
             camera.target = camera.nextTarget
-            console.log("transition start!")
             console.log("Travel start")
             
             !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
