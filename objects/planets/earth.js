@@ -34,7 +34,7 @@ earth.isOrbiting = true
 earth.name = 'Earth'
 earth.orbitTarget = sun
 earth.distanceFromTarget = 1 * au 
-earth.orbitPathColor = 0xff0000
+earth.orbitPathColor = 0xffffff
 
 earth.build()
 

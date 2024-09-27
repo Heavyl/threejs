@@ -11,11 +11,12 @@ export default class Camera extends THREE.PerspectiveCamera{
         this.oldCoordinate = new THREE.Vector3()
         this.coordinates = this.position
         this.nextTarget = null
+        this.targetName = ''
         
         //Transition
         this.inTransition = false
         this.transValue = 1
-        this.transStep = 0.005
+        this.transStep = 0.001
         this.transCount = 0
 
         //Travelling
@@ -49,7 +50,7 @@ export default class Camera extends THREE.PerspectiveCamera{
      * Set distance from actual camera position to target position
      */
     setDistanceToNext(){
-        //Calculate distance between position and target 
+        //Calculate distance between position and next target 
         this.distanceToNext = this.position.distanceTo(this.nextTarget.coordinate)
         return this.distanceToNext 
     }
@@ -57,7 +58,10 @@ export default class Camera extends THREE.PerspectiveCamera{
      * Takes an OrbitControls in input and manage smooth transition on camera target change
      * @param {THREE.orbitControls} orbitControls The orbit control 
      */
-    changeFocus(orbitControls){        
+    changeFocus(orbitControls){       
+        
+        if(!this.inTransition) return
+
         if( this.transCount < this.transValue){      
             orbitControls.target = orbitControls.target
             .clone()
@@ -73,7 +77,9 @@ export default class Camera extends THREE.PerspectiveCamera{
            
     }
     
-    travel(time){         
+    travel(time){      
+
+        if(!this.inTravel) return
         
         //set travel start time. Based on THREE.Clock time
         if(this.travelStartAt === 0){
@@ -82,7 +88,6 @@ export default class Camera extends THREE.PerspectiveCamera{
         //Calculate travel time 
         const timeDelta =  time - this.travelStartAt
         const travelTime =  Math.max(3, this.distanceToNext / this.travelSpeed)
-        console.log('dist : ',this.distanceToNext)
 
         const distance = this.position.distanceTo(this.target.coordinate)
 
@@ -92,7 +97,6 @@ export default class Camera extends THREE.PerspectiveCamera{
             if(distance <= deltaFromBody * 1.8) this.resetTravel()
             const tNormalized = (timeDelta) / (travelTime)
         
-            
             const distanceDelta = this.target.coordinate.clone().sub(this.position.clone()).addScalar(deltaFromBody)
             this.position.addScaledVector(distanceDelta, easeInOutCubic(tNormalized) )
             this.distanceToTarget = distance - deltaFromBody * 1.8

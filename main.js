@@ -40,29 +40,37 @@ window.addEventListener('load', ()=>{
   labels.forEach((label)=>{
       label.addEventListener('pointerdown', (e)=>{
         const newTarget = scene.getObjectByName(e.target.dataset.name)
-        camera.oldTarget = camera.nextTarget //Keep track of old target
+        !camera.oldTarget ? camera.target : camera.nextTarget
+        camera.oldTarget = camera.nextTarget //Keep track of old event target
         camera.nextTarget = newTarget
-       
-        //If event target is different from last event firing :
-        if(camera.oldTarget !== camera.nextTarget ){
-          console.log('Target :', camera.nextTarget)
-          console.log('Old target', camera.oldTarget)
-          camera.setDistanceToNext() 
-          camera.distanceToTarget = camera.distanceToNext
+
+        //Case where click target is different from last clicked target :
+        if(camera.oldTarget !== camera.nextTarget && !camera.inTravel){
+          camera.targetName = newTarget.name
+          camera.setDistanceToNext()
+          camera.distanceToTarget = camera.distanceToNext         
+           
+        //Case where click target is the same as before :
+        }else{                  
+          camera.inTransition ? camera.resetTransition() : null
+          camera.setDistanceToNext()
+          camera.distanceToTarget = camera.distanceToNext 
           
-          
-        //If event target is the same as before :
-        }else{         
+          //Case where click target is the same as last click target but different from camera target    
           if(camera.nextTarget !== camera.target){
-            camera.target = camera.nextTarget
+            camera.targetName = newTarget.name
+            camera.inTravel ? camera.resetTravel() :  null
             console.log("Travel start")
-            
-            !camera.inTransition ? camera.inTransition = true : camera.resetTransition()
-            !camera.inTravel ? camera.inTravel = true : camera.resetTravel()
+            camera.target = camera.nextTarget            
+            camera.inTransition = true
+            camera.inTravel = true
+
+          //Case where the click target is the same as camera target  
           }else{
+            camera.inTravel ? camera.resetTravel() : camera.inTravel = true
             console.log(camera.target.name, 'Already in focus')
+
           }
-          
         }
       })
   })
@@ -113,7 +121,7 @@ function animate(){
     }
   }
 
-  //Camera state machine
+  //Camera Animation
   if(camera.inTravel){    
     camera.travel(time)
     camera.changeFocus(orbitControls)  
@@ -125,7 +133,8 @@ function animate(){
 
   //ui state machine 
   
-  updateElement(distanceCounter, 'p', toRealDistance(camera.distanceToTarget))
+  updateElement(distanceCounter, '#counter-value', toRealDistance(camera.distanceToTarget))
+  updateElement(distanceCounter, '#counter-target-name', camera.targetName)
   
   update()
 

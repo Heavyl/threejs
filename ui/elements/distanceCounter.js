@@ -2,10 +2,13 @@ import Element from "../../classes/Element"
 
 const classes = []
 const distanceCounter = new Element('div', 'distance-counter', classes)
-const text = new Element('p')
-text.innerHTML = '0' 
-distanceCounter.appendChild(text)
-distanceCounter.updateTarget = text
+const name = new Element('p','counter-target-name')
+const counter = new Element('p', 'counter-value')
+name.innerHTML = 'qsdqsd' 
+counter.innerHTML = '0' 
+distanceCounter.appendChild(name)
+distanceCounter.appendChild(counter)
+
 
 export {distanceCounter}
 
