@@ -11,7 +11,7 @@ export default class Orbit extends OrbitControls{
         //Transition
         this.inTransition = false
         this.transValue = 1
-        this.transStep = 0.001
+        this.transStep = 0.01
         this.transCount = 0
     }
     changeFocus(time){
@@ -27,7 +27,7 @@ export default class Orbit extends OrbitControls{
         this.resetTransition()
     }
     updatePosition(time){
-        if(STATE.inTravel){
+        if(STATE.inTransition){
             this.changeFocus(time)
             return
         } 

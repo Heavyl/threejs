@@ -14,6 +14,7 @@ import { orbitControls } from './components/controls/orbit'
 import { STATE } from './data/state'
 import { isTravelling } from './ui/elements/isTraveling'
 import distanceBetween from './functions/utility/distanceBetween'
+import { earth } from './objects/planets/earth'
 
 
 
@@ -46,57 +47,29 @@ window.addEventListener('load', ()=>{
 
         if(STATE.inTravel) return
         //On click, set selected to target
-        STATE.old = STATE.selected
+        STATE.selected ? STATE.old = STATE.selected : camera.target
         STATE.selected  = scene.getObjectByName(e.target.dataset.name)        
         
         //Case where click target is different from last clicked target :
         if(camera.target === STATE.selected){
           STATE.focused = STATE.selected
-      
         }
-        if(camera.target != STATE.selected){
-          
-          console.log('Selected :', STATE.selected.name)
+
+        if(STATE.focused != STATE.selected){            
           camera.distanceToNext = distanceBetween(camera, STATE.selected)
           camera.distanceToTarget = camera.distanceToNext  
         }  
         if(STATE.selected === STATE.old ){
-    
           STATE.focused = STATE.selected
           STATE.inTransition = true
           STATE.inTravel = true
-          console.log('Travel Start')
-          console.log(STATE.focused.name ,' Go into focus')
-          camera.target =  STATE.selected  
+          
         }
-        
-        // }
-        // if(camera.target !== STATE.selected && !STATE.inTravel){
-          
-        //   // camera.distanceToNext = distanceBetween(camera, STATE.selected)
-        //   // camera.distanceToTarget = camera.distanceToNext         
-        //   // console.log('Selected :', STATE.selected.coordinate)
-           
-        // //Case where click target is the same as before :
-        // }else{
-        //   STATE.focused = STATE.selected       
-        //   console.log('focused :' , STATE.focused)           
-          
-        //   camera.distanceToNext = distanceBetween(camera, STATE.selected )
-        //   camera.distanceToTarget = camera.distanceToNext 
-          
-        //   //Case where click target is the same as last click target but different from camera target    
-        //   if(STATE.selected !== camera.target){
-        //     camera.target = STATE.selected     
-        //     STATE.inTransition = true
-        //     console.log("Travel start")
+        camera.target =  STATE.focused  
+        console.log('Selected :', STATE.selected.name)
+        console.log('Focused :', STATE.focused.name)
+        console.log('Old :', STATE.old.name)
 
-        //   //Case where the click target is the same as camera target  
-        //   }else{
-        //     STATE.inTravel = !STATE.inTravel
-        //     // console.log(camera.target.name, 'Already in focus')
-        //   }
-        // }
       })
   })
   //Dom element integration
