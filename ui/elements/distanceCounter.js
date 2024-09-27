@@ -1,11 +1,13 @@
 import Element from "../../classes/Element"
+import { isTravelling } from "./isTraveling"
 
 const classes = []
 const distanceCounter = new Element('div', 'distance-counter', classes)
 const name = new Element('p','counter-target-name')
 const counter = new Element('p', 'counter-value')
-name.innerHTML = 'qsdqsd' 
+name.innerHTML = '' 
 counter.innerHTML = '0' 
+distanceCounter.appendChild(isTravelling)
 distanceCounter.appendChild(name)
 distanceCounter.appendChild(counter)
 

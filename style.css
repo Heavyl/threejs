@@ -1,6 +1,7 @@
 body {
   background-color: black;
-  
+  display: flex;
+  justify-content: center
 }
 body::-webkit-scrollbar {
   display: none;
@@ -20,11 +21,34 @@ body::-webkit-scrollbar {
 /*------- UI --------*/
 
 #distance-counter{
+  font-family: 'roboto';
   position: absolute;
   bottom: 20px;
-  left : 20px;
+  text-align: center;
   color : white;
   padding: 0 10px 0 10px;
-  border : solid white 1px;
-  border-radius: 10px;
+}
+#counter-target-name{
+  line-height: 0;
+  font-size: 3em;
+  margin : 0.75em;
+  font-family: 'roboto';
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+#is-travelling{
+  color: white;
+  font-family: 'roboto';
+  
+}
+
+.blink {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }

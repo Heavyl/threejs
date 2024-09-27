@@ -2,14 +2,18 @@ import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { camera } from './components/cameras/camera'
-import { distanceFactor, globalSpeed, scale, timeOffset } from './globalParameters'
+import { distanceFactor, scale, timeOffset } from './globalParameters'
 
-import { orbitControls, scene } from './components/scenes/main-scene'
+import { scene } from './components/scenes/main-scene'
 
 import { renderer } from './components/renderers/mainRenderer'
 import { labelRenderer } from './components/renderers/css2d'
 import { solarSystemObject } from './data/solarSystem'
 import { distanceCounter } from './ui/elements/distanceCounter'
+import { orbitControls } from './components/controls/orbit'
+import { STATE } from './data/state'
+import { isTravelling } from './ui/elements/isTraveling'
+import distanceBetween from './functions/utility/distanceBetween'
 
 
 
@@ -39,44 +43,65 @@ window.addEventListener('load', ()=>{
   
   labels.forEach((label)=>{
       label.addEventListener('pointerdown', (e)=>{
-        const newTarget = scene.getObjectByName(e.target.dataset.name)
-        !camera.oldTarget ? camera.target : camera.nextTarget
-        camera.oldTarget = camera.nextTarget //Keep track of old event target
-        camera.nextTarget = newTarget
 
+        if(STATE.inTravel) return
+        //On click, set selected to target
+        STATE.old = STATE.selected
+        STATE.selected  = scene.getObjectByName(e.target.dataset.name)        
+        
         //Case where click target is different from last clicked target :
-        if(camera.oldTarget !== camera.nextTarget && !camera.inTravel){
-          camera.targetName = newTarget.name
-          camera.setDistanceToNext()
-          camera.distanceToTarget = camera.distanceToNext         
-           
-        //Case where click target is the same as before :
-        }else{                  
-          camera.inTransition ? camera.resetTransition() : null
-          camera.setDistanceToNext()
-          camera.distanceToTarget = camera.distanceToNext 
-          
-          //Case where click target is the same as last click target but different from camera target    
-          if(camera.nextTarget !== camera.target){
-            camera.targetName = newTarget.name
-            camera.inTravel ? camera.resetTravel() :  null
-            console.log("Travel start")
-            camera.target = camera.nextTarget            
-            camera.inTransition = true
-            camera.inTravel = true
-
-          //Case where the click target is the same as camera target  
-          }else{
-            camera.inTravel ? camera.resetTravel() : camera.inTravel = true
-            console.log(camera.target.name, 'Already in focus')
-
-          }
+        if(camera.target === STATE.selected){
+          STATE.focused = STATE.selected
+      
         }
+        if(camera.target != STATE.selected){
+          
+          console.log('Selected :', STATE.selected.name)
+          camera.distanceToNext = distanceBetween(camera, STATE.selected)
+          camera.distanceToTarget = camera.distanceToNext  
+        }  
+        if(STATE.selected === STATE.old ){
+    
+          STATE.focused = STATE.selected
+          STATE.inTransition = true
+          STATE.inTravel = true
+          console.log('Travel Start')
+          console.log(STATE.focused.name ,' Go into focus')
+          camera.target =  STATE.selected  
+        }
+        
+        // }
+        // if(camera.target !== STATE.selected && !STATE.inTravel){
+          
+        //   // camera.distanceToNext = distanceBetween(camera, STATE.selected)
+        //   // camera.distanceToTarget = camera.distanceToNext         
+        //   // console.log('Selected :', STATE.selected.coordinate)
+           
+        // //Case where click target is the same as before :
+        // }else{
+        //   STATE.focused = STATE.selected       
+        //   console.log('focused :' , STATE.focused)           
+          
+        //   camera.distanceToNext = distanceBetween(camera, STATE.selected )
+        //   camera.distanceToTarget = camera.distanceToNext 
+          
+        //   //Case where click target is the same as last click target but different from camera target    
+        //   if(STATE.selected !== camera.target){
+        //     camera.target = STATE.selected     
+        //     STATE.inTransition = true
+        //     console.log("Travel start")
+
+        //   //Case where the click target is the same as camera target  
+        //   }else{
+        //     STATE.inTravel = !STATE.inTravel
+        //     // console.log(camera.target.name, 'Already in focus')
+        //   }
+        // }
       })
   })
   //Dom element integration
-
   document.body.appendChild(distanceCounter)
+
 })
 
 //------------- On resize Events ----------------
@@ -108,7 +133,7 @@ function animate(){
 
     //Orbits
     if(object.isOrbiting){
-      if(camera.inTravel){
+      if(STATE.inTravel){
         object.play = false
       }else{
         object.play = true
@@ -122,22 +147,23 @@ function animate(){
   }
 
   //Camera Animation
-  if(camera.inTravel){    
-    camera.travel(time)
-    camera.changeFocus(orbitControls)  
-    
-  }else{
-    camera.position.add(camera.getDelta())
-    orbitControls.target = camera.target.coordinate
-  }
+  camera.updatePosition(time)
+  orbitControls.updatePosition(time)
 
   //ui state machine 
-  
+  if(STATE.inTravel){
+    isTravelling.classList.add('blink')
+    isTravelling.style.opacity = '1'
+
+  }else{
+    isTravelling.classList.remove('blink')
+    isTravelling.style.opacity = '0'
+
+  }
   updateElement(distanceCounter, '#counter-value', toRealDistance(camera.distanceToTarget))
-  updateElement(distanceCounter, '#counter-target-name', camera.targetName)
+  updateElement(distanceCounter, '#counter-target-name', STATE.selected?.name  )
   
   update()
-
 }
 
 animate()
@@ -177,6 +203,9 @@ function setCanvasSize(){
  * @returns a formated number as a string 
  */
 function toRealDistance(computedDistance){
+
+  if(computedDistance == 0) return
+
   const realDistance =  Math.max( 0, Math.floor((computedDistance/scale) * distanceFactor ))
   const toString = realDistance.toString().length
   let number = 0
@@ -223,6 +252,9 @@ function formatBillion(x){
  * @param {String | Number} content The new content
  */
 function updateElement(element, selector, content){
+
+  if( !content ) return
+  
   if(selector){
     element.querySelector(selector).textContent = content
     return

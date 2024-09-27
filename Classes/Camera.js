@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { STATE } from '../data/state'
+import { easeInOutCubic } from '../functions/transitions'
 
 
 export default class Camera extends THREE.PerspectiveCamera{
@@ -6,37 +8,25 @@ export default class Camera extends THREE.PerspectiveCamera{
         super()
         this.fov
         this.target 
-        this.delta
         this.oldTargetCoordinate = new THREE.Vector3()
-        this.oldCoordinate = new THREE.Vector3()
         this.coordinates = this.position
         this.nextTarget = null
-        this.targetName = ''
-        
-        //Transition
-        this.inTransition = false
-        this.transValue = 1
-        this.transStep = 0.001
-        this.transCount = 0
 
         //Travelling
-        this.inTravel = false
-        this.travelValue = 1
-        this.travelStep = 0.01
-        this.travelCount = 0 
-        this.travelStartAt = 0
         this.travelSpeed = 100
-        this.distanceToNext = 0
-        this.distanceToTarget = 0
+        this.distanceToNext = 0 //Distance from camera to next target object
+        this.distanceToTarget = 0 //Distance from camera to actual camera target
 
     }
-   
+    /**
+     * Keeps track of target old coordonate.Used to calculate delta with next coordonate.
+     */
     getOldCoord(){
         this.target.body.getWorldPosition(this.oldTargetCoordinate)  
-        this.getWorldPosition(this.oldCoordinate)  
     }
     /**
-     * Get delta between old target position and new target position
+     * Get delta between old camera target position and new camera target position
+     * Used to "follow" target.
      * @returns {THREE.Vector3}
      */
     getDelta(){
@@ -47,45 +37,21 @@ export default class Camera extends THREE.PerspectiveCamera{
             .sub(this.oldTargetCoordinate)
     }
     /**
-     * Set distance from actual camera position to target position
+     * Calculate distance between camera target position
+     * @param {THREE.Object3D} target 
      */
-    setDistanceToNext(){
-        //Calculate distance between position and next target 
-        this.distanceToNext = this.position.distanceTo(this.nextTarget.coordinate)
-        return this.distanceToNext 
+    distanceTo(target){
+        return this.position.distanceTo(target.coordinate)
     }
-    /**
-     * Takes an OrbitControls in input and manage smooth transition on camera target change
-     * @param {THREE.orbitControls} orbitControls The orbit control 
-     */
-    changeFocus(orbitControls){       
-        
-        if(!this.inTransition) return
 
-        if( this.transCount < this.transValue){      
-            orbitControls.target = orbitControls.target
-            .clone()
-            .add(this.target.coordinate.clone()
-            .sub(orbitControls.target)
-            .multiplyScalar(this.transCount)) 
-            
-            this.transCount += this.transStep 
-            return
-        }
-        
-        this.resetTransition()
-           
-    }
-    
     travel(time){      
-
-        if(!this.inTravel) return
+        
         
         //set travel start time. Based on THREE.Clock time
         if(this.travelStartAt === 0){
             this.travelStartAt = time
         }
-        //Calculate travel time 
+        //Calculate travel time in function of distance to target
         const timeDelta =  time - this.travelStartAt
         const travelTime =  Math.max(3, this.distanceToNext / this.travelSpeed)
 
@@ -103,42 +69,20 @@ export default class Camera extends THREE.PerspectiveCamera{
             return
         }       
         this.resetTravel()
-        this.position.add(this.getDelta())     
-    }
-    resetTransition(){
-        this.transCount = 0
-        this.inTransition = false
-        console.log('Transition over')
+          
     }
     resetTravel(){
-        this.travelCount = 0
-        this.inTravel = false
+        STATE.inTravel = false
         this.travelStartAt = 0
         console.log('Travel over')
     }
-    
+    updatePosition(time){ 
+        if(STATE.inTravel){
+            this.travel(time)
+            return
+        } 
+        this.position.add(this.getDelta())
 
-}
-/**
- * Ease-in ease out function, with an "elastic" twist
- * @param {Number} x 
- * @returns 
- */
-function easeInOutBack(x){
-    const c1 = 1.70158
-    const c2 = c1 * 1.525
+    }
 
-    return x < 0.5
-    ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
-    : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
-}
-/**
- * Classic Ease-in ease out function
- * @param {Number} x 
- * @returns 
- */
-function easeInOutCubic(x) {
-    return x < 0.5 
-        ? 4 * x * x * x 
-        : 1 - Math.pow(-2 * x + 2, 3) / 2
 }
