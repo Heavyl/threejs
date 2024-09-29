@@ -14,9 +14,13 @@ import { orbitControls } from './components/controls/orbit'
 import { STATE } from './data/state'
 import { isTravelling } from './ui/elements/isTraveling'
 import distanceBetween from './functions/utility/distanceBetween'
-import { earth } from './objects/planets/earth'
+import { earth, moon } from './objects/planets/earth'
 
+//-------------- Init state -------------
 
+STATE.selected = earth
+STATE.focused  = earth
+STATE.old  = moon 
 
 //------------- Stats init ----------------
 
@@ -47,28 +51,21 @@ window.addEventListener('load', ()=>{
 
         if(STATE.inTravel) return
         //On click, set selected to target
-        STATE.selected ? STATE.old = STATE.selected : camera.target
+        STATE.old = STATE.selected 
         STATE.selected  = scene.getObjectByName(e.target.dataset.name)        
         
         //Case where click target is different from last clicked target :
-        if(camera.target === STATE.selected){
+  
+        if(STATE.selected === STATE.old ){          
+          if(STATE.selected !== STATE.focused){
+            camera.distanceToNext = camera.distanceTo(STATE.selected)
+            camera.distanceToTarget = camera.distanceToNext  
+            STATE.inTransition = true
+            STATE.inTravel = true
+          }
           STATE.focused = STATE.selected
-        }
-
-        if(STATE.focused != STATE.selected){            
-          camera.distanceToNext = distanceBetween(camera, STATE.selected)
-          camera.distanceToTarget = camera.distanceToNext  
-        }  
-        if(STATE.selected === STATE.old ){
-          STATE.focused = STATE.selected
-          STATE.inTransition = true
-          STATE.inTravel = true
-          
         }
         camera.target =  STATE.focused  
-        console.log('Selected :', STATE.selected.name)
-        console.log('Focused :', STATE.focused.name)
-        console.log('Old :', STATE.old.name)
 
       })
   })
@@ -134,7 +131,8 @@ function animate(){
 
   }
   updateElement(distanceCounter, '#counter-value', toRealDistance(camera.distanceToTarget))
-  updateElement(distanceCounter, '#counter-target-name', STATE.selected?.name  )
+  updateElement(distanceCounter, '#counter-target-name', STATE.focused?.name  )
+
   
   update()
 }
@@ -179,7 +177,9 @@ function toRealDistance(computedDistance){
 
   if(computedDistance == 0) return
 
-  const realDistance =  Math.max( 0, Math.floor((computedDistance/scale) * distanceFactor ))
+  const realDistance =  Math.max( 0, Math.floor((computedDistance/scale) * distanceFactor ) )
+  if(realDistance == 0)  return ' ' // if
+
   const toString = realDistance.toString().length
   let number = 0
   let format = ''

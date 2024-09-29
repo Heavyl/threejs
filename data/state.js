@@ -10,6 +10,7 @@ let state = {
     'focused' : null,
     'selected' : null,
     'old' : null,
+    'distance' : 0,
 }
 
 export {state as STATE} 
