@@ -14,7 +14,7 @@ export default class Camera extends THREE.PerspectiveCamera{
         this.focalLength = 35
         this.miniFocalLength = 0
         //Travelling
-        this.travelSpeed = 100
+        this.travelSpeed = 1
         this.distanceToNext = 0 //Distance from camera to next target object
         this.distanceToLast = 0
         this.distanceToTarget = 0 //Distance from camera to actual camera target
@@ -65,7 +65,6 @@ export default class Camera extends THREE.PerspectiveCamera{
         const travelTime =  Math.max(3, this.distanceToNext / this.travelSpeed)
         const distance = this.position.clone().distanceTo(this.target.coordinate)
         this.distanceToLast = this.lastPosition.distanceTo(this.position)
-        console.log(this.distanceToLast)
         
         //Do this while elapsed time inferior to travel time
         if( duration <= travelTime ){  
@@ -81,19 +80,22 @@ export default class Camera extends THREE.PerspectiveCamera{
             if(this.distanceToLast <= landingZone){
                 
                 console.log('accelerating')
-                focalValue = 35 - ((35)/ landingZone) *  distance
-                this.position.addScaledVector(distanceDelta, easeInSine(tNormalized/10))
+                focalValue = 17 - (17/landingZone)* this.distanceToLast
+                this.position.addScaledVector(distanceDelta, easeInSine(tNormalized))
 
             }else if(distance <=  landingZone){
                 console.log('decelearting')
-                focalValue = 35 / landingZone * (distance - landingZone)
-                this.position.addScaledVector(distanceDelta, easeOutSine(tNormalized/10))
+                focalValue = -17 / landingZone * (distance - landingZone)
+                // focalValue = 6 + ((17-6) / 3) * (this.distanceToLast - landingZone - (this.distanceToNext * 2))
+                this.position.addScaledVector(distanceDelta, easeOutSine(tNormalized))
             }else{
                 console.log('crusing')
                 focalValue = 0
                 this.position.addScaledVector(distanceDelta, tNormalized)
             }
-            // this.setFocalLength(focalValue)
+            this.setFocalLength(focalValue)
+            console.log(this.getFocalLength())
+
 
             this.distanceToTarget = distance - distFromBody * 1.8
             return
@@ -107,6 +109,7 @@ export default class Camera extends THREE.PerspectiveCamera{
         STATE.inTravel = false
         this.travelStartAt = 0
         console.log('Travel over')
+        this.setFocalLength(17)
     }
     /**
      * Update position of the camera through time

@@ -97,6 +97,7 @@ function animate(){
   
   //Get camera target coordinate before every other animation
   camera.getOldCoord()
+  
 
   //Object state machine
   for( const [name, object] of Object.entries(solarSystemObject)){
