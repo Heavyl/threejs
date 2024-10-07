@@ -36,7 +36,7 @@ export default class Orbit extends OrbitControls{
     resetTransition(){
         this.transCount = 0 
         STATE.inTransition = false
-        console.log('Transition over')
+        // console.log('Transition over')
     }
 
 }

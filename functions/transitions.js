@@ -14,13 +14,21 @@ export function easeInOutBack(x){
     : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
 }
 
-/**
- * Classic Ease-in ease out function
- * @param {Number} x 
- * @returns 
- */
+
 export function easeInOutCubic(x) {
     return x < 0.5 
     ? 4 * x * x * x 
     : 1 - Math.pow(-2 * x + 2, 3) / 2
 }
+
+export function quadratic(x){
+    return Maths.pow(x, 2)
+}
+
+export function easeInSine(x) {
+    return 1 - Math.cos((x * Math.PI) / 2);
+  }
+
+export function easeOutSine(x) {
+    return Math.sin((x * Math.PI) / 2);
+  }

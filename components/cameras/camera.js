@@ -14,7 +14,7 @@ camera.near = 0.001
 camera.far = 100000
 camera.aspect = aspect.width / aspect.height
 
-camera.position.z = 5
-camera.position.y = 5
+camera.position.z = 2
+camera.position.y = 2
 
 export { camera }
