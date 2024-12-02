@@ -13,7 +13,7 @@ import { distanceCounter } from './ui/elements/distanceCounter'
 import { orbitControls } from './components/controls/orbit'
 import { STATE } from './data/state'
 import { isTravelling } from './ui/elements/isTraveling'
-import distanceBetween from './functions/utility/distanceBetween'
+// import distanceBetween from './functions/utility/distanceBetween'
 import { earth, moon } from './objects/planets/earth'
 
 //-------------- Init state -------------
