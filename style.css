@@ -18,6 +18,9 @@ body::-webkit-scrollbar {
   font-family:'Roboto';
   font-weight: '100';
 }
+.hidden{
+  display:none;
+}
 /*------- UI --------*/
 
 #distance-counter{

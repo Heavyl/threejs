@@ -49,24 +49,33 @@ window.addEventListener('load', ()=>{
       label.addEventListener('pointerdown', (e)=>{
 
         if(STATE.inTravel) return
-        //On click, set selected to target
+        //On click, set selected body to target
         STATE.old = STATE.selected 
         STATE.selected  = scene.getObjectByName(e.target.dataset.name)        
-        
+
+
         //Case where click target is different from last clicked target :
   
-        if(STATE.selected === STATE.old ){          
+        if(STATE.selected === STATE.old ){       
+          //Happens when current body is selected (double click)   
           if(STATE.selected !== STATE.focused){
             camera.distanceToNext = camera.distanceTo(STATE.selected)
             camera.distanceToTarget = camera.distanceToNext  
             STATE.inTransition = true
             STATE.inTravel = true
+
+            //Show every labels before hidding the one actually targeted
+            labels.forEach( l =>{
+              l.classList.remove("hidden")
+            })
+            hide(label)
           }
           STATE.focused = STATE.selected
         }
         camera.target =  STATE.focused  
-
+        
       })
+      
   })
   //Dom element integration
   document.body.appendChild(distanceCounter)
@@ -233,4 +242,8 @@ function updateElement(element, selector, content){
     return
   }
   element.textContent = content
+}
+
+function hide(element){
+  element.classList.toggle('hidden')
 }

@@ -90,7 +90,7 @@ export default class Camera extends THREE.PerspectiveCamera{
                 this.position.addScaledVector(distanceDelta, easeOutSine(tNormalized))
             }else{
                 console.log('crusing')
-                focalValue = 0
+                focalValue = 0.1
                 this.position.addScaledVector(distanceDelta, tNormalized)
             }
             this.setFocalLength(focalValue)
