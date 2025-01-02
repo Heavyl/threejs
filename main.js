@@ -64,7 +64,7 @@ window.addEventListener('load', ()=>{
             STATE.inTransition = true
             STATE.inTravel = true
 
-            //Show every labels before hidding the one actually targeted
+            //Show every labels before hidding the one from targeted body
             labels.forEach( l =>{
               l.classList.remove("hidden")
             })
