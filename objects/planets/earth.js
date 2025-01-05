@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { textureLoader } from '../../components/loaders/textureLoader'
 import Planet from '../../classes/Planet'
+import Satelite from '../../classes/Satelite'
 import { sun } from '../stars/sun'
 import { au } from '../../globalParameters'
 
@@ -76,7 +77,7 @@ earth.body.add(earth.lowAtmosphere.layers)
 const moonMaterial = new THREE.MeshPhysicalMaterial({
   map : moonColorTexture
 })
-const moon = new Planet(1737, earth, 0, moonMaterial)
+const moon = new Satelite(1737, earth, 0, moonMaterial)
 moon.isOrbiting = true
 moon.orbitDirection = -10
 moon.orbitingSpeed = 10.02

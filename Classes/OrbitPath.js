@@ -32,7 +32,7 @@ export default class OrbitPath{
       
         const material = new THREE.LineBasicMaterial({ 
             transparent : true,
-            opacity : 0.2,
+            opacity : 0.05,
             color: this.color 
         })
         const ellipse = new THREE.Line( geometry, material)        

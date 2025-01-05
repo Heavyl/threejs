@@ -8,7 +8,10 @@ export default class Label{
         const div = document.createElement( 'div' )
         div.className = 'label'
         div.id = `${this.target.name.toLowerCase()}-label`
+
         div.dataset.name = this.target.name
+        div.dataset.type = this.target.constructor.name.toLowerCase()
+        
         div.textContent = `𐤏 ${this.target.name}`
         div.style.backgroundColor = 'transparent'
 

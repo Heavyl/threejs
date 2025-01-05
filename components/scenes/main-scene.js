@@ -8,6 +8,7 @@ import Star from '../../classes/Star'
 import CelestialBody from '../../classes/CelestialBody'
 
 
+
 const scene = new THREE.Scene({
     name: 'Scene'
 })
@@ -43,23 +44,26 @@ scene.background = skyTexture
 
 //------------ Lights -------------
 
-const ambientLigth = new THREE.AmbientLight(0xffffff, 0.005)
+const ambientLigth = new THREE.AmbientLight(0xffffff, 0.1)
 scene.add(ambientLigth)
-
 
 export {scene}
 
 /**
- * Small function to automatically add any CelestialBody (and child classes) to the right parent. 
+ * Automatically add any CelestialBody (and child classes) to the right parent. 
  * If the object have an 'orbitTarget' paremeter defined, object use this target as a parent.
- * Else it add the object to the firstParent.
+ * Else it add the object to the root object. Allows to automatically add relevants satelites to it's orbit target 
  * @example 
- * @param {Planet | Star | CelestialBody} firstParent The firstParent where every other will be attached
- * @param {Planet | Star | CelestialBody} object The object to add to the scene, as a child of it's 'orbitTarget'
+ * @param {Planet | Star | CelestialBody} rootObject The rootObject where every others will be attached (ex : the solar system)
+ * @param {Planet | Star | CelestialBody} object The object to add to the scene (planet, satelites or any other object)
  * @returns 
  */
-function populate( firstParent, object){
+function populate( rootObject, object){
     const parent = object.orbitTarget
-    parent ? parent.add(object) : firstParent.add(object)      
-    
+    if(!parent){
+        rootObject.add(object) 
+        return
+    }
+    parent.add(object)
+      
 }

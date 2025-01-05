@@ -80,12 +80,12 @@ export default class Camera extends THREE.PerspectiveCamera{
             if(this.distanceToLast <= landingZone){
                 
                 console.log('accelerating')
-                focalValue = 17 - (17/landingZone)* this.distanceToLast
+                focalValue = 36 - ( 36 / landingZone ) * this.distanceToLast
                 this.position.addScaledVector(distanceDelta, easeInSine(tNormalized))
 
             }else if(distance <=  landingZone){
                 console.log('decelearting')
-                focalValue = -17 / landingZone * (distance - landingZone)
+                focalValue = -36 / landingZone * (distance - landingZone)
                 // focalValue = 6 + ((17-6) / 3) * (this.distanceToLast - landingZone - (this.distanceToNext * 2))
                 this.position.addScaledVector(distanceDelta, easeOutSine(tNormalized))
             }else{
@@ -94,7 +94,7 @@ export default class Camera extends THREE.PerspectiveCamera{
                 this.position.addScaledVector(distanceDelta, tNormalized)
             }
             this.setFocalLength(focalValue)
-            console.log(this.getFocalLength())
+            // console.log(this.getFocalLength())
 
 
             this.distanceToTarget = distance - distFromBody * 1.8
@@ -109,7 +109,7 @@ export default class Camera extends THREE.PerspectiveCamera{
         STATE.inTravel = false
         this.travelStartAt = 0
         console.log('Travel over')
-        this.setFocalLength(17)
+        this.setFocalLength(36)
     }
     /**
      * Update position of the camera through time
@@ -122,7 +122,5 @@ export default class Camera extends THREE.PerspectiveCamera{
             return
         } 
         this.position.add(this.getDelta())
-
     }
-
 }

@@ -14,6 +14,11 @@ import { orbitControls } from './components/controls/orbit'
 import { STATE } from './data/state'
 import { isTravelling } from './ui/elements/isTraveling'
 import { earth, moon } from './objects/planets/earth'
+import Planet from './classes/Planet'
+import Satelite from './classes/Satelite'
+
+
+
 
 //-------------- Init state -------------
 
@@ -28,7 +33,7 @@ document.body.appendChild(stats.dom)
 
 //------------------- GUI setup -------------------
 
-const gui = new GUI()
+// const gui = new GUI()
 
 //------------- ThreeJS clock init ----------------
 
@@ -42,41 +47,43 @@ window.addEventListener('load', ()=>{
   //Set canvas size on loading page
   setCanvasSize()
 
-  //Setup event for click on labels
+  //Init labels style (needs improvment)
   const labels = document.querySelectorAll('.label')  
-  
+  let labelList = []
+
   labels.forEach((label)=>{
-      label.addEventListener('pointerdown', (e)=>{
+    const name = label.dataset.name
+    const body = scene.getObjectByName(name)
+    
+    //Setup event for click on labels
+    label.addEventListener('pointerdown', (e)=>{
+      labelList = []
 
-        if(STATE.inTravel) return
-        //On click, set selected body to target
-        STATE.old = STATE.selected 
-        STATE.selected  = scene.getObjectByName(e.target.dataset.name)        
+      if(STATE.inTravel) return
+      //On click, set selected body to target
+      STATE.old = STATE.selected 
+      STATE.selected  = body       
 
 
-        //Case where click target is different from last clicked target :
-  
-        if(STATE.selected === STATE.old ){       
-          //Happens when current body is selected (double click)   
-          if(STATE.selected !== STATE.focused){
-            camera.distanceToNext = camera.distanceTo(STATE.selected)
-            camera.distanceToTarget = camera.distanceToNext  
-            STATE.inTransition = true
-            STATE.inTravel = true
+      //Case where click target is different from last clicked target :
 
-            //Show every labels before hidding the one from targeted body
-            labels.forEach( l =>{
-              l.classList.remove("hidden")
-            })
-            hide(label)
-          }
-          STATE.focused = STATE.selected
+      if(STATE.selected === STATE.old ){       
+        //Happens when current body is selected (double click)   
+        if(STATE.selected !== STATE.focused){
+          camera.distanceToNext = camera.distanceTo(STATE.selected)
+          camera.distanceToTarget = camera.distanceToNext  
+          STATE.inTransition = true
+          STATE.inTravel = true
+
         }
-        camera.target =  STATE.focused  
-        
-      })
+        STATE.focused = STATE.selected
+      }
+      camera.target =  STATE.focused  
+      
+    })
       
   })
+  
   //Dom element integration
   document.body.appendChild(distanceCounter)
 
@@ -101,11 +108,9 @@ function animate(){
   //render
   renderer.render(scene, camera)
   labelRenderer.render( scene, camera )
- 
   
   //Get camera target coordinate before every other animation
   camera.getOldCoord()
-  
 
   //Object state machine
   for( const [name, object] of Object.entries(solarSystemObject)){
@@ -245,5 +250,17 @@ function updateElement(element, selector, content){
 }
 
 function hide(element){
-  element.classList.toggle('hidden')
+  element.classList.add('hidden')
+}
+function show(element){
+  element.classList.remove('hidden')
+
+}
+
+function isSatelite(label){
+  return label.dataset.type == 'satelite'
+}
+//Hide every satelite
+function hideCurrent(label){
+
 }
